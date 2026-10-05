@@ -1,0 +1,6 @@
+* text=auto
+*.swift text diff=swift
+*.pbxproj text
+*.plist text
+*.md text
+*.json text
