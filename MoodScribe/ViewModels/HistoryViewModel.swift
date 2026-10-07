@@ -106,6 +106,8 @@ final class HistoryViewModel {
             guard !trimmed.isEmpty else { return true }
             if entry.text.localizedCaseInsensitiveContains(trimmed) { return true }
             if entry.sentiment.rawValue.localizedCaseInsensitiveContains(trimmed) { return true }
+            if let mood = entry.mood, mood.title.localizedCaseInsensitiveContains(trimmed) { return true }
+            if entry.factors.contains(where: { $0.title.localizedCaseInsensitiveContains(trimmed) }) { return true }
             return entry.keywords.contains { $0.localizedCaseInsensitiveContains(trimmed) }
         }
     }
@@ -127,10 +129,27 @@ final class HistoryViewModel {
         return total / Double(slice.count)
     }
 
-    func sentiment(on day: Date) -> SentimentType? {
-        let matches = entries.filter { calendar.isDate($0.date, inSameDayAs: day) }
-        guard !matches.isEmpty else { return nil }
-        let average = matches.reduce(0.0) { $0 + $1.sentimentScore } / Double(matches.count)
-        return SentimentType.classify(average)
+    func entries(on day: Date) -> [JournalEntrySnapshot] {
+        entries.filter { calendar.isDate($0.date, inSameDayAs: day) }
     }
+
+    func marker(on day: Date) -> DayMarker {
+        let matches = entries(on: day)
+        let mood = matches.sorted { $0.date > $1.date }.compactMap(\.mood).first
+        let analyzed = matches.filter(\.didAnalyze)
+        let sentiment: SentimentType?
+        if analyzed.isEmpty {
+            sentiment = nil
+        } else {
+            let average = analyzed.reduce(0.0) { $0 + $1.sentimentScore } / Double(analyzed.count)
+            sentiment = SentimentType.classify(average)
+        }
+        return DayMarker(mood: mood, sentiment: sentiment, hasEntry: !matches.isEmpty)
+    }
+}
+
+struct DayMarker: Equatable {
+    var mood: SelectedMood?
+    var sentiment: SentimentType?
+    var hasEntry: Bool
 }

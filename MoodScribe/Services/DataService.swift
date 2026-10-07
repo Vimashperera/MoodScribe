@@ -16,8 +16,22 @@ enum JournalDataError: LocalizedError {
 protocol DataService: AnyObject {
     func fetchAll() throws -> [JournalEntry]
     func entry(id: UUID) -> JournalEntry?
-    func create(text: String, date: Date, analysis: SentimentAnalysis) throws -> JournalEntry
-    func update(id: UUID, text: String, analysis: SentimentAnalysis) throws
+    func create(
+        text: String,
+        date: Date,
+        mood: SelectedMood?,
+        factors: [DayFactor],
+        analysis: SentimentAnalysis,
+        didAnalyze: Bool
+    ) throws -> JournalEntry
+    func update(
+        id: UUID,
+        text: String,
+        mood: SelectedMood?,
+        factors: [DayFactor],
+        analysis: SentimentAnalysis,
+        didAnalyze: Bool
+    ) throws
     func delete(id: UUID) throws
 }
 
@@ -46,27 +60,47 @@ final class SwiftDataService: DataService {
         return try? context.fetch(descriptor).first
     }
 
-    func create(text: String, date: Date = .now, analysis: SentimentAnalysis) throws -> JournalEntry {
+    func create(
+        text: String,
+        date: Date = .now,
+        mood: SelectedMood? = nil,
+        factors: [DayFactor] = [],
+        analysis: SentimentAnalysis,
+        didAnalyze: Bool = true
+    ) throws -> JournalEntry {
         let entry = JournalEntry(
             text: text,
             date: date,
             updatedAt: date,
-            sentimentScore: analysis.score,
-            sentimentLabel: analysis.label.rawValue,
-            keywords: analysis.keywords
+            sentimentScore: didAnalyze ? analysis.score : 0,
+            sentimentLabel: didAnalyze ? analysis.label.rawValue : SentimentType.neutral.rawValue,
+            keywords: didAnalyze ? analysis.keywords : [],
+            moodRaw: mood?.rawValue ?? "",
+            factors: factors.map(\.rawValue),
+            didAnalyze: didAnalyze
         )
         context.insert(entry)
         try context.save()
         return entry
     }
 
-    func update(id: UUID, text: String, analysis: SentimentAnalysis) throws {
+    func update(
+        id: UUID,
+        text: String,
+        mood: SelectedMood?,
+        factors: [DayFactor],
+        analysis: SentimentAnalysis,
+        didAnalyze: Bool
+    ) throws {
         guard let entry = entry(id: id) else { throw JournalDataError.missingEntry }
         entry.text = text
         entry.updatedAt = .now
-        entry.sentimentScore = analysis.score
-        entry.sentiment = analysis.label
-        entry.keywords = analysis.keywords
+        entry.moodRaw = mood?.rawValue ?? ""
+        entry.factors = factors.map(\.rawValue)
+        entry.didAnalyze = didAnalyze
+        entry.sentimentScore = didAnalyze ? analysis.score : 0
+        entry.sentiment = didAnalyze ? analysis.label : .neutral
+        entry.keywords = didAnalyze ? analysis.keywords : []
         try context.save()
     }
 

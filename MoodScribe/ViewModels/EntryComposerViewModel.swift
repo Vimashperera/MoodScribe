@@ -14,7 +14,7 @@ enum ComposerValidation: Equatable {
         case .empty:
             "Write a few words before saving."
         case .tooShort:
-            "Add at least \(EntryComposerViewModel.minimumCharacters) characters so the mood check has something to read."
+            "Add at least \(EntryComposerViewModel.minimumCharacters) characters so there is something to reflect on."
         case .tooLong:
             "Entries are limited to \(EntryComposerViewModel.maximumCharacters) characters."
         }
@@ -30,34 +30,47 @@ final class EntryComposerViewModel {
     private let dataService: any DataService
     private let sentimentService: SentimentAnalysisService
     private let mode: ComposerMode
-    @ObservationIgnored private var analysisTask: Task<Void, Never>?
+    private var originalText = ""
+    private var preservedAnalysis = SentimentAnalysis.empty
+    private var preservedDidAnalyze = false
 
     var text: String
-    var selectedTags: Set<MoodTag>
+    var selectedMood: SelectedMood?
+    var selectedFactors: Set<DayFactor>
+    var analyzesAutomatically: Bool
     private(set) var analysis: SentimentAnalysis
     private(set) var didSave = false
+    private(set) var savedEntryID: UUID?
     private(set) var validationMessage: String?
-    private(set) var isAnalyzing = false
 
     init(
         mode: ComposerMode,
         dataService: any DataService,
-        sentimentService: SentimentAnalysisService = SentimentAnalysisService()
+        sentimentService: SentimentAnalysisService = SentimentAnalysisService(),
+        analyzesAutomatically: Bool = true
     ) {
         self.mode = mode
         self.dataService = dataService
         self.sentimentService = sentimentService
+        self.analyzesAutomatically = analyzesAutomatically
         self.text = ""
-        self.selectedTags = []
+        self.selectedMood = nil
+        self.selectedFactors = []
         self.analysis = .empty
 
         if case .edit(let id) = mode, let entry = dataService.entry(id: id) {
             text = entry.text
-            analysis = SentimentAnalysis(
+            originalText = entry.text
+            selectedMood = SelectedMood(rawValue: entry.moodRaw)
+            selectedFactors = Set(entry.factors.compactMap(DayFactor.init(rawValue:)))
+            preservedDidAnalyze = entry.didAnalyze
+            let loaded = SentimentAnalysis(
                 score: entry.sentimentScore,
                 label: entry.sentiment,
                 keywords: entry.keywords
             )
+            preservedAnalysis = loaded
+            analysis = entry.didAnalyze ? loaded : .empty
         }
     }
 
@@ -69,22 +82,13 @@ final class EntryComposerViewModel {
         text.split { $0.isWhitespace }.filter { !$0.isEmpty }.count
     }
 
-    var composedText: String {
-        let body = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        let extras = selectedTags
-            .sorted { $0.rawValue < $1.rawValue }
-            .map(\.phrase)
-            .filter { phrase in
-                !body.localizedCaseInsensitiveContains(phrase)
-            }
-        guard !extras.isEmpty else { return body }
-        if body.isEmpty { return extras.joined(separator: ", ") }
-        return body + "\n" + extras.joined(separator: ", ")
+    var bodyText: String {
+        text.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     var validation: ComposerValidation {
-        let count = composedText.count
-        if composedText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return .empty }
+        let count = bodyText.count
+        if bodyText.isEmpty { return .empty }
         if count < Self.minimumCharacters { return .tooShort }
         if count > Self.maximumCharacters { return .tooLong }
         return .valid
@@ -94,45 +98,32 @@ final class EntryComposerViewModel {
 
     func updateText(_ newValue: String) {
         text = String(newValue.prefix(Self.maximumCharacters))
-        scheduleAnalysis()
     }
 
-    func toggle(_ tag: MoodTag) {
-        if selectedTags.contains(tag) {
-            selectedTags.remove(tag)
+    func select(_ mood: SelectedMood) {
+        selectedMood = selectedMood == mood ? nil : mood
+    }
+
+    func toggle(_ factor: DayFactor) {
+        if selectedFactors.contains(factor) {
+            selectedFactors.remove(factor)
         } else {
-            selectedTags.insert(tag)
+            selectedFactors.insert(factor)
         }
-        scheduleAnalysis()
     }
 
-    func insertPhrase(for tag: MoodTag) {
-        let phrase = tag.phrase
-        if text.localizedCaseInsensitiveContains(phrase) {
-            selectedTags.insert(tag)
-            return
-        }
-        if text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            updateText(phrase.capitalized)
-        } else {
-            updateText(text + " " + phrase)
-        }
-        selectedTags.insert(tag)
-    }
-
-    func clearTags() {
-        selectedTags.removeAll()
-        scheduleAnalysis()
+    func clearFactors() {
+        selectedFactors.removeAll()
     }
 
     func reset() {
-        analysisTask?.cancel()
         text = ""
-        selectedTags.removeAll()
+        selectedMood = nil
+        selectedFactors.removeAll()
         analysis = .empty
-        isAnalyzing = false
         validationMessage = nil
         didSave = false
+        savedEntryID = nil
     }
 
     func clearValidationMessage() {
@@ -140,24 +131,39 @@ final class EntryComposerViewModel {
     }
 
     func refreshAnalysis() {
-        analysisTask?.cancel()
-        analysis = sentimentService.analyze(composedText)
-        isAnalyzing = false
+        guard analyzesAutomatically else { return }
+        analysis = sentimentService.analyze(bodyText)
     }
 
     func save() {
-        refreshAnalysis()
+        let payload = resolveAnalysis()
         guard validation == .valid else {
             validationMessage = validation.message
             return
         }
-        let payload = composedText
+        let factors = selectedFactors.sorted { $0.title < $1.title }
         do {
             switch mode {
             case .create:
-                _ = try dataService.create(text: payload, date: .now, analysis: analysis)
+                let entry = try dataService.create(
+                    text: bodyText,
+                    date: .now,
+                    mood: selectedMood,
+                    factors: factors,
+                    analysis: payload.analysis,
+                    didAnalyze: payload.didAnalyze
+                )
+                savedEntryID = entry.id
             case .edit(let id):
-                try dataService.update(id: id, text: payload, analysis: analysis)
+                try dataService.update(
+                    id: id,
+                    text: bodyText,
+                    mood: selectedMood,
+                    factors: factors,
+                    analysis: payload.analysis,
+                    didAnalyze: payload.didAnalyze
+                )
+                savedEntryID = id
             }
             didSave = true
         } catch {
@@ -165,18 +171,17 @@ final class EntryComposerViewModel {
         }
     }
 
-    private func scheduleAnalysis() {
-        analysisTask?.cancel()
-        isAnalyzing = true
-        let snapshot = composedText
-        analysisTask = Task { [weak self] in
-            try? await Task.sleep(nanoseconds: 160_000_000)
-            guard !Task.isCancelled, let self else { return }
-            let result = await SentimentAnalysisService.analyzeOffMain(snapshot)
-            guard !Task.isCancelled else { return }
-            guard self.composedText == snapshot else { return }
-            self.analysis = result
-            self.isAnalyzing = false
+    private func resolveAnalysis() -> (analysis: SentimentAnalysis, didAnalyze: Bool) {
+        if analyzesAutomatically {
+            refreshAnalysis()
+            return (analysis, true)
         }
+        let textChanged = bodyText != originalText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if case .edit = mode, !textChanged, preservedDidAnalyze {
+            analysis = preservedAnalysis
+            return (preservedAnalysis, true)
+        }
+        analysis = .empty
+        return (.empty, false)
     }
 }

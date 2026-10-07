@@ -11,7 +11,11 @@
 		B00100000000000000000002 /* JournalEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00100000000000000000002 /* JournalEntry.swift */; };
 		B00100000000000000000003 /* SentimentType.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00100000000000000000003 /* SentimentType.swift */; };
 		B00100000000000000000004 /* SentimentAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00100000000000000000004 /* SentimentAnalysis.swift */; };
-		B00100000000000000000005 /* MoodTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00100000000000000000005 /* MoodTag.swift */; };
+		B00100000000000000000005 /* Wellbeing.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00100000000000000000005 /* Wellbeing.swift */; };
+		B00100000000000000000019 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00100000000000000000019 /* HomeView.swift */; };
+		B0010000000000000000001A /* TrendsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0010000000000000000001A /* TrendsView.swift */; };
+		B0010000000000000000001B /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0010000000000000000001B /* SettingsView.swift */; };
+		B0010000000000000000001C /* JournalInsights.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0010000000000000000001C /* JournalInsights.swift */; };
 		B00100000000000000000006 /* AppRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00100000000000000000006 /* AppRoute.swift */; };
 		B00100000000000000000007 /* SentimentAnalysisService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00100000000000000000007 /* SentimentAnalysisService.swift */; };
 		B00100000000000000000008 /* DataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00100000000000000000008 /* DataService.swift */; };
@@ -21,10 +25,10 @@
 		B0010000000000000000000C /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0010000000000000000000C /* RootView.swift */; };
 		B0010000000000000000000D /* ComposerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0010000000000000000000D /* ComposerView.swift */; };
 		B0010000000000000000000E /* EntryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0010000000000000000000E /* EntryDetailView.swift */; };
-		B0010000000000000000000F /* HistoryListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0010000000000000000000F /* HistoryListView.swift */; };
+		B0010000000000000000000F /* CalendarJournalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0010000000000000000000F /* CalendarJournalView.swift */; };
 		B00100000000000000000010 /* SentimentGaugeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00100000000000000000010 /* SentimentGaugeView.swift */; };
 		B00100000000000000000011 /* MoodCardModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00100000000000000000011 /* MoodCardModifier.swift */; };
-		B00100000000000000000012 /* MoodTagStrip.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00100000000000000000012 /* MoodTagStrip.swift */; };
+		B00100000000000000000012 /* SelectionChips.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00100000000000000000012 /* SelectionChips.swift */; };
 		B00100000000000000000013 /* CalendarMonthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00100000000000000000013 /* CalendarMonthView.swift */; };
 		B00100000000000000000014 /* AccessibilityID.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00100000000000000000014 /* AccessibilityID.swift */; };
 		B00100000000000000000015 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F00100000000000000000015 /* Assets.xcassets */; };
@@ -55,7 +59,11 @@
 		F00100000000000000000002 /* JournalEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JournalEntry.swift; sourceTree = "<group>"; };
 		F00100000000000000000003 /* SentimentType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentimentType.swift; sourceTree = "<group>"; };
 		F00100000000000000000004 /* SentimentAnalysis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentimentAnalysis.swift; sourceTree = "<group>"; };
-		F00100000000000000000005 /* MoodTag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodTag.swift; sourceTree = "<group>"; };
+		F00100000000000000000005 /* Wellbeing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Wellbeing.swift; sourceTree = "<group>"; };
+		F00100000000000000000019 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		F0010000000000000000001A /* TrendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrendsView.swift; sourceTree = "<group>"; };
+		F0010000000000000000001B /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		F0010000000000000000001C /* JournalInsights.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JournalInsights.swift; sourceTree = "<group>"; };
 		F00100000000000000000006 /* AppRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRoute.swift; sourceTree = "<group>"; };
 		F00100000000000000000007 /* SentimentAnalysisService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentimentAnalysisService.swift; sourceTree = "<group>"; };
 		F00100000000000000000008 /* DataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataService.swift; sourceTree = "<group>"; };
@@ -65,10 +73,10 @@
 		F0010000000000000000000C /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		F0010000000000000000000D /* ComposerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComposerView.swift; sourceTree = "<group>"; };
 		F0010000000000000000000E /* EntryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryDetailView.swift; sourceTree = "<group>"; };
-		F0010000000000000000000F /* HistoryListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryListView.swift; sourceTree = "<group>"; };
+		F0010000000000000000000F /* CalendarJournalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarJournalView.swift; sourceTree = "<group>"; };
 		F00100000000000000000010 /* SentimentGaugeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentimentGaugeView.swift; sourceTree = "<group>"; };
 		F00100000000000000000011 /* MoodCardModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodCardModifier.swift; sourceTree = "<group>"; };
-		F00100000000000000000012 /* MoodTagStrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodTagStrip.swift; sourceTree = "<group>"; };
+		F00100000000000000000012 /* SelectionChips.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionChips.swift; sourceTree = "<group>"; };
 		F00100000000000000000013 /* CalendarMonthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarMonthView.swift; sourceTree = "<group>"; };
 		F00100000000000000000014 /* AccessibilityID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityID.swift; sourceTree = "<group>"; };
 		F00100000000000000000015 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -155,7 +163,7 @@
 				F00100000000000000000002 /* JournalEntry.swift */,
 				F00100000000000000000003 /* SentimentType.swift */,
 				F00100000000000000000004 /* SentimentAnalysis.swift */,
-				F00100000000000000000005 /* MoodTag.swift */,
+				F00100000000000000000005 /* Wellbeing.swift */,
 				F00100000000000000000006 /* AppRoute.swift */,
 			);
 			path = Models;
@@ -176,6 +184,7 @@
 				F00100000000000000000009 /* EntryComposerViewModel.swift */,
 				F0010000000000000000000A /* EntryDetailViewModel.swift */,
 				F0010000000000000000000B /* HistoryViewModel.swift */,
+				F0010000000000000000001C /* JournalInsights.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -184,9 +193,12 @@
 			isa = PBXGroup;
 			children = (
 				E00100000000000000000038 /* Root */,
+				E00100000000000000000040 /* Home */,
 				E00100000000000000000035 /* Composer */,
 				E00100000000000000000036 /* Detail */,
-				E00100000000000000000037 /* History */,
+				E00100000000000000000037 /* Calendar */,
+				E00100000000000000000041 /* Trends */,
+				E00100000000000000000042 /* Settings */,
 				E00100000000000000000039 /* Components */,
 			);
 			path = Views;
@@ -208,12 +220,36 @@
 			path = Detail;
 			sourceTree = "<group>";
 		};
-		E00100000000000000000037 /* History */ = {
+		E00100000000000000000037 /* Calendar */ = {
 			isa = PBXGroup;
 			children = (
-				F0010000000000000000000F /* HistoryListView.swift */,
+				F0010000000000000000000F /* CalendarJournalView.swift */,
 			);
-			path = History;
+			path = Calendar;
+			sourceTree = "<group>";
+		};
+		E00100000000000000000040 /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				F00100000000000000000019 /* HomeView.swift */,
+			);
+			path = Home;
+			sourceTree = "<group>";
+		};
+		E00100000000000000000041 /* Trends */ = {
+			isa = PBXGroup;
+			children = (
+				F0010000000000000000001A /* TrendsView.swift */,
+			);
+			path = Trends;
+			sourceTree = "<group>";
+		};
+		E00100000000000000000042 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				F0010000000000000000001B /* SettingsView.swift */,
+			);
+			path = Settings;
 			sourceTree = "<group>";
 		};
 		E00100000000000000000038 /* Root */ = {
@@ -228,7 +264,7 @@
 			isa = PBXGroup;
 			children = (
 				F00100000000000000000010 /* SentimentGaugeView.swift */,
-				F00100000000000000000012 /* MoodTagStrip.swift */,
+				F00100000000000000000012 /* SelectionChips.swift */,
 				F00100000000000000000013 /* CalendarMonthView.swift */,
 				E0010000000000000000003A /* Modifiers */,
 			);
@@ -409,7 +445,11 @@
 				B00100000000000000000002 /* JournalEntry.swift in Sources */,
 				B00100000000000000000003 /* SentimentType.swift in Sources */,
 				B00100000000000000000004 /* SentimentAnalysis.swift in Sources */,
-				B00100000000000000000005 /* MoodTag.swift in Sources */,
+				B00100000000000000000005 /* Wellbeing.swift in Sources */,
+				B00100000000000000000019 /* HomeView.swift in Sources */,
+				B0010000000000000000001A /* TrendsView.swift in Sources */,
+				B0010000000000000000001B /* SettingsView.swift in Sources */,
+				B0010000000000000000001C /* JournalInsights.swift in Sources */,
 				B00100000000000000000006 /* AppRoute.swift in Sources */,
 				B00100000000000000000007 /* SentimentAnalysisService.swift in Sources */,
 				B00100000000000000000008 /* DataService.swift in Sources */,
@@ -419,10 +459,10 @@
 				B0010000000000000000000C /* RootView.swift in Sources */,
 				B0010000000000000000000D /* ComposerView.swift in Sources */,
 				B0010000000000000000000E /* EntryDetailView.swift in Sources */,
-				B0010000000000000000000F /* HistoryListView.swift in Sources */,
+				B0010000000000000000000F /* CalendarJournalView.swift in Sources */,
 				B00100000000000000000010 /* SentimentGaugeView.swift in Sources */,
 				B00100000000000000000011 /* MoodCardModifier.swift in Sources */,
-				B00100000000000000000012 /* MoodTagStrip.swift in Sources */,
+				B00100000000000000000012 /* SelectionChips.swift in Sources */,
 				B00100000000000000000013 /* CalendarMonthView.swift in Sources */,
 				B00100000000000000000014 /* AccessibilityID.swift in Sources */,
 			);

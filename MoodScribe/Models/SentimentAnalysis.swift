@@ -7,12 +7,38 @@ struct SentimentAnalysis: Equatable, Sendable {
 
     static let empty = SentimentAnalysis(score: 0, label: .neutral, keywords: [])
 
-    var moodIndexPercent: Int {
-        let normalized = (min(1, max(-1, score)) + 1) / 2
-        return Int((normalized * 100).rounded())
-    }
-
     var scoreText: String {
         String(format: "%+.2f", score)
+    }
+
+    /// Describes the tone of the writing. It is not a mental-health measurement.
+    var toneSentence: String {
+        switch score {
+        case 0.45...:
+            "Your writing has a positive tone."
+        case 0.1..<0.45:
+            "Your writing has a slightly positive tone."
+        case ..<(-0.45):
+            "Your writing has a negative tone."
+        case -0.45..<(-0.1):
+            "Your writing has a slightly negative tone."
+        default:
+            "Your writing has a neutral tone."
+        }
+    }
+
+    var toneTitle: String {
+        switch score {
+        case 0.45...:
+            "Positive"
+        case 0.1..<0.45:
+            "Slightly Positive"
+        case ..<(-0.45):
+            "Negative"
+        case -0.45..<(-0.1):
+            "Slightly Negative"
+        default:
+            "Neutral"
+        }
     }
 }

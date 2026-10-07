@@ -68,10 +68,17 @@ final class SentimentServiceTests: XCTestCase {
         XCTAssertEqual(SentimentType.classify(-0.11), .negative)
     }
 
-    func testMoodIndexPercentMapsEndpoints() {
-        XCTAssertEqual(SentimentAnalysis(score: -1, label: .negative, keywords: []).moodIndexPercent, 0)
-        XCTAssertEqual(SentimentAnalysis(score: 0, label: .neutral, keywords: []).moodIndexPercent, 50)
-        XCTAssertEqual(SentimentAnalysis(score: 1, label: .positive, keywords: []).moodIndexPercent, 100)
+    func testToneLanguageDescribesWritingNotHealth() {
+        let positive = SentimentAnalysis(score: 0.8, label: .positive, keywords: [])
+        let slight = SentimentAnalysis(score: 0.2, label: .positive, keywords: [])
+        let neutral = SentimentAnalysis(score: 0, label: .neutral, keywords: [])
+        let negative = SentimentAnalysis(score: -0.8, label: .negative, keywords: [])
+
+        XCTAssertEqual(positive.toneSentence, "Your writing has a positive tone.")
+        XCTAssertEqual(slight.toneSentence, "Your writing has a slightly positive tone.")
+        XCTAssertEqual(neutral.toneTitle, "Neutral")
+        XCTAssertEqual(negative.toneSentence, "Your writing has a negative tone.")
+        XCTAssertFalse(positive.toneSentence.localizedCaseInsensitiveContains("mental health"))
     }
 
     func testAnalysisPerformanceOnALongEntry() {
