@@ -3,39 +3,50 @@ import UIKit
 
 struct ComposerView: View {
     @Environment(\.modelContext) private var modelContext
+    @AppStorage(JournalPreference.analyzeAutomatically) private var analyzeAutomatically = true
+
     let mode: ComposerMode
+    var onSaved: (UUID) -> Void
 
     var body: some View {
-        ComposerScreen(mode: mode, dataService: SwiftDataService(context: modelContext))
+        ComposerScreen(
+            mode: mode,
+            dataService: SwiftDataService(context: modelContext),
+            analyzeAutomatically: analyzeAutomatically,
+            onSaved: onSaved
+        )
     }
 }
 
-private struct ComposerScreen: View {
-    @Environment(\.dismiss) private var dismiss
-    @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.horizontalSizeClass) private var sizeClass
-    @State private var viewModel: EntryComposerViewModel
+enum JournalPreference {
+    static let analyzeAutomatically = "moodscribe.analyzeAutomatically"
+    static let showSentiment = "moodscribe.showSentiment"
+}
 
-    init(mode: ComposerMode, dataService: any DataService) {
-        _viewModel = State(initialValue: EntryComposerViewModel(mode: mode, dataService: dataService))
+private struct ComposerScreen: View {
+    @State private var viewModel: EntryComposerViewModel
+    var analyzeAutomatically: Bool
+    var onSaved: (UUID) -> Void
+
+    init(
+        mode: ComposerMode,
+        dataService: any DataService,
+        analyzeAutomatically: Bool,
+        onSaved: @escaping (UUID) -> Void
+    ) {
+        self.analyzeAutomatically = analyzeAutomatically
+        _viewModel = State(initialValue: EntryComposerViewModel(
+            mode: mode,
+            dataService: dataService,
+            analyzesAutomatically: analyzeAutomatically
+        ))
+        self.onSaved = onSaved
     }
 
     var body: some View {
         ScrollView {
-            Group {
-                if sizeClass == .regular {
-                    HStack(alignment: .top, spacing: 24) {
-                        editorColumn
-                        insightColumn
-                    }
-                } else {
-                    VStack(spacing: 20) {
-                        insightColumn
-                        editorColumn
-                    }
-                }
-            }
-            .padding()
+            editorColumn
+                .padding()
         }
         .scrollDismissesKeyboard(.interactively)
         .background(Color(uiColor: .systemGroupedBackground).ignoresSafeArea())
@@ -43,24 +54,22 @@ private struct ComposerScreen: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
-                Button("Clear") {
-                    resetWithFeedback()
-                }
-                .accessibilityIdentifier(AccessibilityID.clearDraft)
+                Button("Clear") { resetWithFeedback() }
+                    .accessibilityIdentifier(AccessibilityID.clearDraft)
             }
             ToolbarItem(placement: .confirmationAction) {
-                Button("Save") {
-                    viewModel.save()
-                }
-                .disabled(!viewModel.canSave)
-                .accessibilityIdentifier(AccessibilityID.save)
+                Button("Save") { viewModel.save() }
+                    .disabled(!viewModel.canSave)
+                    .accessibilityIdentifier(AccessibilityID.save)
             }
         }
         .onChange(of: viewModel.didSave) { _, saved in
-            if saved {
-                UINotificationFeedbackGenerator().notificationOccurred(.success)
-                dismiss()
-            }
+            guard saved, let id = viewModel.savedEntryID else { return }
+            UINotificationFeedbackGenerator().notificationOccurred(.success)
+            onSaved(id)
+        }
+        .onChange(of: analyzeAutomatically) { _, newValue in
+            viewModel.analyzesAutomatically = newValue
         }
         .alert(
             "Check your entry",
@@ -75,45 +84,9 @@ private struct ComposerScreen: View {
         }
     }
 
-    private var insightColumn: some View {
-        VStack(spacing: 12) {
-            ZStack {
-                SentimentAuraView(score: viewModel.analysis.score)
-                SentimentGaugeView(
-                    score: viewModel.analysis.score,
-                    label: viewModel.analysis.label,
-                    showsResetHint: true
-                )
-            }
-            .frame(maxWidth: .infinity)
-            .contentShape(Rectangle())
-            .onLongPressGesture(minimumDuration: 0.55) {
-                resetWithFeedback()
-            }
-            .highPriorityGesture(
-                DragGesture(minimumDistance: 24)
-                    .onEnded { value in
-                        if value.translation.height > 70 {
-                            resetWithFeedback()
-                        }
-                    }
-            )
-            .accessibilityAction(named: "Reset draft") {
-                resetWithFeedback()
-            }
-
-            if viewModel.isAnalyzing {
-                ProgressView("Reading mood")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .moodCardStyle(tint: SentimentType.interpolatedColor(for: viewModel.analysis.score, scheme: colorScheme))
-    }
-
     private var editorColumn: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("How was today?")
+        VStack(alignment: .leading, spacing: 16) {
+            Text("How was your day?")
                 .font(.title3.weight(.semibold))
 
             TextEditor(text: Binding(
@@ -124,7 +97,10 @@ private struct ComposerScreen: View {
             .frame(minHeight: 180)
             .padding(8)
             .scrollContentBackground(.hidden)
-            .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .background(
+                Color(uiColor: .secondarySystemGroupedBackground),
+                in: RoundedRectangle(cornerRadius: 16, style: .continuous)
+            )
             .accessibilityIdentifier(AccessibilityID.editor)
             .accessibilityLabel("Journal entry")
 
@@ -138,9 +114,17 @@ private struct ComposerScreen: View {
             .foregroundStyle(.secondary)
             .accessibilityIdentifier(AccessibilityID.counter)
 
-            Text("Quick moods")
+            Text("Mood")
                 .font(.subheadline.weight(.semibold))
-            Text("Tap or drag a tag to toggle it. Press and hold a tag to insert it. Drag this caption left to clear tags.")
+            Text("Optional. This is how you felt, separate from the tone of the writing.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            MoodPicker(selected: viewModel.selectedMood) { viewModel.select($0) }
+
+            Text("What influenced your day?")
+                .font(.subheadline.weight(.semibold))
+            Text("Optional. Drag this caption left to clear the factors.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -149,64 +133,19 @@ private struct ComposerScreen: View {
                     DragGesture(minimumDistance: 24)
                         .onEnded { value in
                             if value.translation.width < -60 {
-                                withAnimation { viewModel.clearTags() }
+                                withAnimation { viewModel.clearFactors() }
                             }
                         }
                 )
-
-            MoodTagStrip(
-                selectedTags: $viewModel.selectedTags,
-                onToggle: { viewModel.toggle($0) },
-                onInsert: { viewModel.insertPhrase(for: $0) }
-            )
-
-            if !viewModel.analysis.keywords.isEmpty {
-                keywordRow
-            }
+            FactorChipStrip(selected: viewModel.selectedFactors) { viewModel.toggle($0) }
         }
         .moodCardStyle(tint: .accentColor)
-    }
-
-    private var keywordRow: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Keywords")
-                .font(.subheadline.weight(.semibold))
-            FlexibleKeywordWrap(keywords: viewModel.analysis.keywords)
-        }
-        .transition(.opacity.combined(with: .move(edge: .top)))
-        .animation(.easeInOut(duration: 0.25), value: viewModel.analysis.keywords)
     }
 
     private func resetWithFeedback() {
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
         withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
             viewModel.reset()
-        }
-    }
-}
-
-struct FlexibleKeywordWrap: View {
-    let keywords: [String]
-
-    var body: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(spacing: 8) {
-                chips
-            }
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 88), spacing: 8)], alignment: .leading, spacing: 8) {
-                chips
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var chips: some View {
-        ForEach(keywords, id: \.self) { keyword in
-            Text(keyword.capitalized)
-                .font(.caption.weight(.medium))
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-                .background(Color.primary.opacity(0.08), in: Capsule())
         }
     }
 }

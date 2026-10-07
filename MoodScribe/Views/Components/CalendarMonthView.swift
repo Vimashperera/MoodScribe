@@ -3,7 +3,7 @@ import SwiftUI
 struct CalendarMonthView: View {
     let month: Date
     let selectedDay: Date?
-    var sentimentForDay: (Date) -> SentimentType?
+    var markerForDay: (Date) -> DayMarker
     var onSelect: (Date) -> Void
     var onShiftMonth: (Int) -> Void
 
@@ -97,32 +97,49 @@ struct CalendarMonthView: View {
     private func dayCell(_ cell: DayCell) -> some View {
         if let date = cell.date {
             let isSelected = selectedDay.map { calendar.isDate($0, inSameDayAs: date) } ?? false
-            let mood = sentimentForDay(date)
+            let marker = markerForDay(date)
             Button {
                 onSelect(date)
             } label: {
-                VStack(spacing: 4) {
+                VStack(spacing: 2) {
                     Text(date, format: .dateTime.day())
                         .font(.body)
                         .foregroundStyle(isSelected ? Color.white : Color.primary)
+                    if let mood = marker.mood {
+                        Text(mood.emoji)
+                            .font(.caption)
+                            .accessibilityHidden(true)
+                    }
                     Circle()
-                        .fill(mood?.color(in: colorScheme) ?? Color.clear)
+                        .fill(marker.sentiment?.color(in: colorScheme) ?? Color.clear)
                         .frame(width: 6, height: 6)
                 }
                 .frame(maxWidth: .infinity, minHeight: 44)
                 .background {
                     RoundedRectangle(cornerRadius: 10, style: .continuous)
-                        .fill(isSelected ? Color.accentColor : Color.primary.opacity(0.04))
+                        .fill(isSelected ? Color.accentColor : Color.primary.opacity(marker.hasEntry ? 0.06 : 0.04))
                 }
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.borderless)
             .accessibilityLabel(date.formatted(date: .abbreviated, time: .omitted))
-            .accessibilityValue(mood?.rawValue ?? "No entry")
+            .accessibilityValue(markerValue(marker))
         } else {
             Color.clear
                 .frame(minHeight: 44)
         }
     }
+}
+
+private func markerValue(_ marker: DayMarker) -> String {
+    guard marker.hasEntry else { return "No reflection recorded" }
+    var parts: [String] = []
+    if let mood = marker.mood {
+        parts.append(mood.title)
+    }
+    if let sentiment = marker.sentiment {
+        parts.append("\(sentiment.rawValue) writing tone")
+    }
+    return parts.isEmpty ? "Reflection recorded" : parts.joined(separator: ", ")
 }
 
 private struct DayCell: Identifiable {

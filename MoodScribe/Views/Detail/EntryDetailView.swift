@@ -3,10 +3,15 @@ import UIKit
 
 struct EntryDetailView: View {
     @Environment(\.modelContext) private var modelContext
+    @AppStorage(JournalPreference.showSentiment) private var showSentiment = true
     let entryID: UUID
 
     var body: some View {
-        EntryDetailScreen(entryID: entryID, dataService: SwiftDataService(context: modelContext))
+        EntryDetailScreen(
+            entryID: entryID,
+            dataService: SwiftDataService(context: modelContext),
+            showSentiment: showSentiment
+        )
     }
 }
 
@@ -16,9 +21,11 @@ private struct EntryDetailScreen: View {
     @Environment(\.horizontalSizeClass) private var sizeClass
     @State private var viewModel: EntryDetailViewModel
     @State private var confirmDelete = false
+    let showSentiment: Bool
 
-    init(entryID: UUID, dataService: any DataService) {
+    init(entryID: UUID, dataService: any DataService, showSentiment: Bool) {
         _viewModel = State(initialValue: EntryDetailViewModel(entryID: entryID, dataService: dataService))
+        self.showSentiment = showSentiment
     }
 
     var body: some View {
@@ -27,12 +34,12 @@ private struct EntryDetailScreen: View {
                 Group {
                     if sizeClass == .regular {
                         HStack(alignment: .top, spacing: 20) {
-                            meter(snapshot)
+                            reflection(snapshot)
                             details(snapshot)
                         }
                     } else {
                         VStack(spacing: 16) {
-                            meter(snapshot)
+                            reflection(snapshot)
                             details(snapshot)
                         }
                     }
@@ -40,7 +47,7 @@ private struct EntryDetailScreen: View {
                 .padding()
             } else {
                 ContentUnavailableView(
-                    "Entry unavailable",
+                    "Reflection unavailable",
                     systemImage: "book.closed",
                     description: Text(viewModel.errorMessage ?? "It may have been deleted.")
                 )
@@ -48,28 +55,24 @@ private struct EntryDetailScreen: View {
             }
         }
         .background(Color(uiColor: .systemGroupedBackground).ignoresSafeArea())
-        .navigationTitle("Insights")
+        .navigationTitle(navigationTitle)
         .navigationBarTitleDisplayMode(.inline)
         .confirmationDialog(
-            "Delete this entry?",
+            "Delete this reflection?",
             isPresented: $confirmDelete,
             titleVisibility: .visible
         ) {
-            Button("Delete", role: .destructive) {
-                viewModel.delete()
-            }
+            Button("Delete", role: .destructive) { viewModel.delete() }
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("This journal entry will be removed from this device.")
         }
-        .task {
-            viewModel.load()
-        }
+        .task { viewModel.load() }
         .onChange(of: viewModel.didDelete) { _, deleted in
             if deleted { dismiss() }
         }
         .alert(
-            "Could not update entry",
+            "Could not update reflection",
             isPresented: Binding(
                 get: { viewModel.errorMessage != nil && viewModel.snapshot != nil },
                 set: { if !$0 { viewModel.clearError() } }
@@ -81,17 +84,53 @@ private struct EntryDetailScreen: View {
         }
     }
 
-    private func meter(_ snapshot: JournalEntrySnapshot) -> some View {
-        VStack(spacing: 12) {
-            SentimentGaugeView(score: snapshot.sentimentScore, label: snapshot.sentiment)
-            Text(snapshot.sentimentScore, format: .number.sign(strategy: .always()).precision(.fractionLength(2)))
-                .font(.title2.monospacedDigit().weight(.semibold))
-                .accessibilityIdentifier(AccessibilityID.detailScore)
-            Text("Polarity from -1.0 to +1.0")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+    private var navigationTitle: String {
+        guard let date = viewModel.snapshot?.date, Calendar.current.isDateInToday(date) else {
+            return "Reflection"
         }
-        .moodCardStyle(tint: snapshot.sentiment.color(in: colorScheme))
+        return "Today's Reflection"
+    }
+
+    private func reflection(_ snapshot: JournalEntrySnapshot) -> some View {
+        VStack(spacing: 12) {
+            if showSentiment, snapshot.didAnalyze {
+                ZStack {
+                    SentimentAuraView(score: snapshot.sentimentScore)
+                    SentimentGaugeView(score: snapshot.sentimentScore, label: snapshot.sentiment)
+                }
+                Text(snapshot.toneSentence)
+                    .font(.title3.weight(.semibold))
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier(AccessibilityID.toneSentence)
+                Text("Sentiment score \(snapshot.sentimentScore.formatted(.number.sign(strategy: .always()).precision(.fractionLength(2))))")
+                    .font(.subheadline.monospacedDigit())
+                    .foregroundStyle(.secondary)
+                    .accessibilityIdentifier(AccessibilityID.detailScore)
+                Text("This describes the tone of the writing.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            } else if showSentiment {
+                Text("Sentiment analysis was turned off for this reflection.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+
+            if let mood = snapshot.mood {
+                labeledRow(title: "Mood", value: "\(mood.emoji) \(mood.title)")
+            }
+            if !snapshot.factors.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Factors")
+                        .font(.subheadline.weight(.semibold))
+                    FlexibleKeywordWrap(keywords: snapshot.factors.map(\.title))
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+        .moodCardStyle(tint: reflectionTint(snapshot))
     }
 
     private func details(_ snapshot: JournalEntrySnapshot) -> some View {
@@ -113,27 +152,27 @@ private struct EntryDetailScreen: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .accessibilityIdentifier(AccessibilityID.detailText)
 
-            HStack(spacing: 12) {
-                statTile(title: "Mood index", value: "\(SentimentAnalysis(score: snapshot.sentimentScore, label: snapshot.sentiment, keywords: snapshot.keywords).moodIndexPercent)%")
-                statTile(title: "Words", value: "\(wordCount(snapshot.text))")
-                statTile(title: "Class", value: snapshot.sentiment.rawValue)
-            }
-
-            VStack(alignment: .leading, spacing: 8) {
-                Label("Emotional keywords", systemImage: "text.magnifyingglass")
-                    .font(.headline)
-                if snapshot.keywords.isEmpty {
-                    Text("No distinct keywords were extracted from this entry.")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                } else {
-                    FlexibleKeywordWrap(keywords: snapshot.keywords)
+            if showSentiment, snapshot.didAnalyze {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Sentiment")
+                        .font(.headline)
+                    Text(snapshot.sentiment.rawValue)
+                        .font(.body)
+                    if snapshot.keywords.isEmpty {
+                        Text("No distinct themes were found in this writing.")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        Text("Detected themes")
+                            .font(.subheadline.weight(.semibold))
+                        FlexibleKeywordWrap(keywords: snapshot.keywords)
+                    }
                 }
             }
 
             HStack(spacing: 12) {
                 NavigationLink(value: AppRoute.composer(.edit(viewModel.entryID))) {
-                    Label("Edit Entry", systemImage: "pencil")
+                    Label("Edit", systemImage: "pencil")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
@@ -149,25 +188,27 @@ private struct EntryDetailScreen: View {
                 .accessibilityIdentifier(AccessibilityID.detailDelete)
             }
         }
-        .moodCardStyle(tint: snapshot.sentiment.color(in: colorScheme))
+        .moodCardStyle(tint: reflectionTint(snapshot))
     }
 
-    private func statTile(title: String, value: String) -> some View {
+    private func labeledRow(title: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                .font(.subheadline.weight(.semibold))
             Text(value)
-                .font(.headline)
-                .minimumScaleFactor(0.7)
-                .lineLimit(1)
+                .font(.title3)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(10)
-        .background(Color.primary.opacity(0.05), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 
-    private func wordCount(_ text: String) -> Int {
-        text.split { $0.isWhitespace }.count
+    private func reflectionTint(_ snapshot: JournalEntrySnapshot) -> Color {
+        guard showSentiment, snapshot.didAnalyze else { return .accentColor }
+        return snapshot.sentiment.color(in: colorScheme)
+    }
+}
+
+private extension JournalEntrySnapshot {
+    var toneSentence: String {
+        SentimentAnalysis(score: sentimentScore, label: sentiment, keywords: keywords).toneSentence
     }
 }

@@ -163,26 +163,123 @@ final class ViewModelTests: XCTestCase {
         XCTAssertEqual(filtered.map(\.text), ["today"])
     }
 
-    func testMoodTagsAreIncludedInSavedText() throws {
+    func testMoodAndFactorsStaySeparateFromTheJournalText() throws {
         let composer = EntryComposerViewModel(mode: .create, dataService: service)
         composer.updateText("Today was quiet.")
-        composer.toggle(.grateful)
-        composer.refreshAnalysis()
-        XCTAssertTrue(composer.composedText.localizedCaseInsensitiveContains("feeling grateful"))
+        composer.select(.good)
+        composer.toggle(.studies)
+        composer.toggle(.personalGoals)
         composer.save()
 
         let saved = try XCTUnwrap(service.fetchAll().first)
-        XCTAssertTrue(saved.text.localizedCaseInsensitiveContains("feeling grateful"))
+        XCTAssertEqual(saved.text, "Today was quiet.")
+        XCTAssertEqual(saved.moodRaw, SelectedMood.good.rawValue)
+        XCTAssertEqual(saved.factors, [DayFactor.personalGoals.rawValue, DayFactor.studies.rawValue])
+        XCTAssertFalse(saved.text.localizedCaseInsensitiveContains("Studies"))
+    }
+
+    func testMoodCanBeLeftUnsetAndThenEdited() throws {
+        let composer = EntryComposerViewModel(mode: .create, dataService: service)
+        composer.updateText("A plain note about the afternoon.")
+        composer.save()
+        let created = try XCTUnwrap(service.fetchAll().first)
+        XCTAssertEqual(created.moodRaw, "")
+        XCTAssertTrue(created.factors.isEmpty)
+
+        let editor = EntryComposerViewModel(mode: .edit(created.id), dataService: service)
+        XCTAssertNil(editor.selectedMood)
+        editor.select(.low)
+        editor.toggle(.work)
+        editor.save()
+
+        let updated = try XCTUnwrap(service.entry(id: created.id))
+        XCTAssertEqual(updated.moodRaw, SelectedMood.low.rawValue)
+        XCTAssertEqual(updated.factors, [DayFactor.work.rawValue])
+    }
+
+    func testEveryMoodOptionCanBeStored() throws {
+        for mood in SelectedMood.allCases {
+            let composer = EntryComposerViewModel(mode: .create, dataService: service)
+            composer.updateText("Checking the \(mood.title) mood option today.")
+            composer.select(mood)
+            composer.save()
+            let saved = try XCTUnwrap(service.fetchAll().first { $0.moodRaw == mood.rawValue })
+            XCTAssertEqual(SelectedMood(rawValue: saved.moodRaw), mood)
+        }
+    }
+
+    func testAutomaticAnalysisCanBeTurnedOff() throws {
+        let composer = EntryComposerViewModel(
+            mode: .create,
+            dataService: service,
+            analyzesAutomatically: false
+        )
+        composer.updateText("I feel wonderful, grateful, and calm today.")
+        composer.select(.great)
+        composer.save()
+
+        let saved = try XCTUnwrap(service.fetchAll().first)
+        XCTAssertFalse(saved.didAnalyze)
+        XCTAssertEqual(saved.sentimentScore, 0)
+        XCTAssertTrue(saved.keywords.isEmpty)
+        XCTAssertEqual(saved.moodRaw, SelectedMood.great.rawValue)
+    }
+
+    func testInsightsCoverEmptySingleAndSeveralEntries() {
+        let calendar = Calendar(identifier: .gregorian)
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+
+        XCTAssertTrue(JournalInsights.periodEntries([], window: .week, now: now, calendar: calendar).isEmpty)
+        XCTAssertNil(JournalInsights.averageAnalyzedScore([]))
+        XCTAssertEqual(JournalInsights.moodDirection([]), .notEnough)
+        XCTAssertNil(JournalInsights.observation([]))
+        XCTAssertEqual(JournalInsights.weekSummary(entries: [], now: now, calendar: calendar).detail, "No reflections yet this week.")
+
+        let single = snapshot("one", score: 0.4, keywords: ["calm"], dayOffset: 0, now: now, calendar: calendar, mood: .good, factors: [.studies])
+        XCTAssertEqual(JournalInsights.moodDirection([single]), .notEnough)
+        XCTAssertNil(JournalInsights.observation([single]))
+        XCTAssertEqual(JournalInsights.factorCounts([single]).map(\.factor), [.studies])
+        XCTAssertEqual(JournalInsights.averageAnalyzedScore([single]) ?? -1, 0.4, accuracy: 0.001)
+        XCTAssertEqual(
+            JournalInsights.periodEntries([single], window: .month, now: now, calendar: calendar).count,
+            1
+        )
+
+        let olderLow = snapshot("older", score: -0.2, keywords: [], dayOffset: -3, now: now, calendar: calendar, mood: .veryLow)
+        let newerHigh = snapshot("newer", score: 0.6, keywords: ["calm"], dayOffset: 0, now: now, calendar: calendar, mood: .great, factors: [.studies])
+        XCTAssertEqual(JournalInsights.moodDirection([olderLow, newerHigh]), .improving)
+        XCTAssertEqual(JournalInsights.repeatedKeywords([single, newerHigh]), ["calm"])
+
+        let skipped = snapshot("off", score: 0, keywords: [], dayOffset: -1, now: now, calendar: calendar, didAnalyze: false)
+        XCTAssertEqual(JournalInsights.averageAnalyzedScore([single, skipped]) ?? -1, 0.4, accuracy: 0.001)
+    }
+
+    func testObservationRequiresEnoughComparableMoods() {
+        let calendar = Calendar(identifier: .gregorian)
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let positive = (0..<2).map { offset in
+            snapshot("goal", score: 0.2, keywords: [], dayOffset: -offset, now: now, calendar: calendar, mood: .great, factors: [.personalGoals])
+        }
+        let quieter = (2..<4).map { offset in
+            snapshot("other", score: 0, keywords: [], dayOffset: -offset, now: now, calendar: calendar, mood: .veryLow)
+        }
+        XCTAssertEqual(
+            JournalInsights.observation(positive + quieter),
+            "Your mood was generally more positive on the days you selected Personal Goals."
+        )
+        XCTAssertNil(JournalInsights.observation(Array(positive.prefix(1)) + quieter))
     }
 
     func testResetAndCharacterCap() {
         let composer = EntryComposerViewModel(mode: .create, dataService: service)
         composer.updateText(String(repeating: "word ", count: 800))
-        composer.toggle(.calm)
+        composer.toggle(.work)
+        composer.select(.okay)
         XCTAssertLessThanOrEqual(composer.characterCount, EntryComposerViewModel.maximumCharacters)
         composer.reset()
         XCTAssertEqual(composer.text, "")
-        XCTAssertTrue(composer.selectedTags.isEmpty)
+        XCTAssertTrue(composer.selectedFactors.isEmpty)
+        XCTAssertNil(composer.selectedMood)
         XCTAssertEqual(composer.analysis, .empty)
         XCTAssertEqual(composer.validation, .empty)
     }
@@ -200,7 +297,10 @@ final class ViewModelTests: XCTestCase {
         keywords: [String],
         dayOffset: Int,
         now: Date = Date(timeIntervalSince1970: 1_700_000_000),
-        calendar: Calendar = Calendar(identifier: .gregorian)
+        calendar: Calendar = Calendar(identifier: .gregorian),
+        mood: SelectedMood? = nil,
+        factors: [DayFactor] = [],
+        didAnalyze: Bool = true
     ) -> JournalEntrySnapshot {
         let date = calendar.date(byAdding: .day, value: dayOffset, to: now) ?? now
         return JournalEntrySnapshot(
@@ -208,7 +308,10 @@ final class ViewModelTests: XCTestCase {
             date: date,
             sentimentScore: score,
             sentiment: SentimentType.classify(score),
-            keywords: keywords
+            keywords: keywords,
+            mood: mood,
+            factors: factors,
+            didAnalyze: didAnalyze
         )
     }
 }

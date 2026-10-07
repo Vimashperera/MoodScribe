@@ -15,8 +15,18 @@ enum AccessibilityID {
     static let detailDelete = "detail.delete"
     static let detailText = "detail.text"
 
-    static func moodTag(_ tag: MoodTag) -> String {
-        "mood.tag.\(tag.rawValue)"
+    static let homeWeek = "home.week"
+    static let settingsAnalyze = "settings.analyze"
+    static let settingsShowSentiment = "settings.showSentiment"
+    static let settingsPrivacy = "settings.privacy"
+    static let toneSentence = "detail.tone"
+
+    static func moodOption(_ mood: SelectedMood) -> String {
+        "mood.option.\(mood.rawValue)"
+    }
+
+    static func factor(_ factor: DayFactor) -> String {
+        "factor.\(factor.rawValue)"
     }
 
     static func filter(_ name: String) -> String {

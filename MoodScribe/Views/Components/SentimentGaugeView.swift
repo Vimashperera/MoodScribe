@@ -3,7 +3,6 @@ import SwiftUI
 struct SentimentGaugeView: View {
     let score: Double
     let label: SentimentType
-    var showsResetHint = false
 
     @Environment(\.colorScheme) private var colorScheme
     @ScaledMetric(relativeTo: .title2) private var diameter: CGFloat = 168
@@ -30,15 +29,15 @@ struct SentimentGaugeView: View {
                     .rotationEffect(.degrees(-90))
                     .animation(.spring(response: 0.55, dampingFraction: 0.78), value: progress)
                 VStack(spacing: 2) {
-                    Text("\(Int((progress * 100).rounded()))%")
-                        .font(.title.weight(.semibold))
+                    Text(String(format: "%+.2f", score))
+                        .font(.title2.weight(.semibold))
                         .minimumScaleFactor(0.7)
                         .contentTransition(.numericText())
+                    Text("Sentiment score")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                     Text(label.rawValue)
                         .font(.subheadline.weight(.medium))
-                        .foregroundStyle(.secondary)
-                    Text(String(format: "%+.2f", score))
-                        .font(.caption.monospacedDigit())
                         .foregroundStyle(.secondary)
                 }
                 .padding(12)
@@ -46,15 +45,8 @@ struct SentimentGaugeView: View {
             .frame(width: diameter, height: diameter)
             .accessibilityElement(children: .ignore)
             .accessibilityIdentifier(AccessibilityID.gauge)
-            .accessibilityLabel("Sentiment meter")
-            .accessibilityValue("\(label.rawValue), \(Int((progress * 100).rounded())) percent, score \(String(format: "%+.2f", score))")
-
-            if showsResetHint {
-                Text("Press and hold, or drag down, to reset")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-            }
+            .accessibilityLabel("Sentiment score")
+            .accessibilityValue("\(String(format: "%+.2f", score)), \(label.rawValue) tone of the writing")
         }
     }
 }

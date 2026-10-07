@@ -68,15 +68,15 @@ private struct RGB {
     }
 
     static let light = Palette(
-        negative: RGB(r: 0.80, g: 0.33, b: 0.31),
-        neutral: RGB(r: 0.62, g: 0.55, b: 0.22),
-        positive: RGB(r: 0.11, g: 0.55, b: 0.50)
+        negative: RGB(r: 0.36, g: 0.48, b: 0.72),
+        neutral: RGB(r: 0.55, g: 0.60, b: 0.62),
+        positive: RGB(r: 0.92, g: 0.62, b: 0.28)
     )
 
     static let dark = Palette(
-        negative: RGB(r: 0.95, g: 0.50, b: 0.46),
-        neutral: RGB(r: 0.90, g: 0.78, b: 0.40),
-        positive: RGB(r: 0.40, g: 0.84, b: 0.76)
+        negative: RGB(r: 0.62, g: 0.72, b: 0.90),
+        neutral: RGB(r: 0.72, g: 0.76, b: 0.78),
+        positive: RGB(r: 0.98, g: 0.78, b: 0.46)
     )
 
     struct Palette {

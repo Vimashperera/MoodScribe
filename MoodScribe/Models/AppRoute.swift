@@ -6,13 +6,14 @@ enum ComposerMode: Hashable {
 
     var navigationTitle: String {
         switch self {
-        case .create: "New Entry"
-        case .edit: "Edit Entry"
+        case .create: "New Reflection"
+        case .edit: "Edit Reflection"
         }
     }
 }
 
 enum AppRoute: Hashable {
     case composer(ComposerMode)
-    case detail(UUID)
+    case reflection(UUID)
+    case day(Date)
 }
