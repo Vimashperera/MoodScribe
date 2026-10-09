@@ -284,6 +284,17 @@ final class ViewModelTests: XCTestCase {
         XCTAssertEqual(composer.validation, .empty)
     }
 
+    func testComposerFactorsSelectedMoodIntoSentimentScoring() throws {
+        let composer = EntryComposerViewModel(mode: .create, dataService: service)
+        composer.updateText("Cooked dinner and watched a movie.")
+        composer.select(.good)
+        composer.save()
+
+        let saved = try XCTUnwrap(service.fetchAll().first)
+        XCTAssertGreaterThan(saved.sentimentScore, 0.1)
+        XCTAssertEqual(saved.sentiment, .positive)
+    }
+
     func testMissingDetailEntryReportsError() {
         let detail = EntryDetailViewModel(entryID: UUID(), dataService: service)
         detail.load()

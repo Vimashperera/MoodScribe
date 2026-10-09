@@ -30,6 +30,17 @@ enum SelectedMood: String, Codable, CaseIterable, Identifiable, Hashable, Sendab
         case .great: 4
         }
     }
+
+    /// Polarity score representing this mood on the sentiment scale (-1.0 ... +1.0).
+    var sentimentScore: Double {
+        switch self {
+        case .great: 0.85
+        case .good: 0.50
+        case .okay: 0.0
+        case .low: -0.50
+        case .veryLow: -0.85
+        }
+    }
 }
 
 enum DayFactor: String, Codable, CaseIterable, Identifiable, Hashable, Sendable {

@@ -17,6 +17,14 @@ enum SentimentType: String, Codable, CaseIterable, Identifiable, Sendable {
 
     var accessibilityName: String { rawValue }
 
+    var moodDescription: String {
+        switch self {
+        case .positive: "Good mood"
+        case .neutral: "Neutral"
+        case .negative: "Bad mood"
+        }
+    }
+
     /// Scores above 0.1 are positive, below -0.1 are negative, and the band between is neutral.
     static func classify(_ score: Double) -> SentimentType {
         if score > 0.1 { return .positive }

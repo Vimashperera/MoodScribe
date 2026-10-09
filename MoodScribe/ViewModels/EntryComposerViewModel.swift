@@ -102,6 +102,7 @@ final class EntryComposerViewModel {
 
     func select(_ mood: SelectedMood) {
         selectedMood = selectedMood == mood ? nil : mood
+        refreshAnalysis()
     }
 
     func toggle(_ factor: DayFactor) {
@@ -132,7 +133,7 @@ final class EntryComposerViewModel {
 
     func refreshAnalysis() {
         guard analyzesAutomatically else { return }
-        analysis = sentimentService.analyze(bodyText)
+        analysis = sentimentService.analyze(bodyText, mood: selectedMood)
     }
 
     func save() {

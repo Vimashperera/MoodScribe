@@ -41,4 +41,15 @@ struct SentimentAnalysis: Equatable, Sendable {
             "Neutral"
         }
     }
+
+    var moodSentence: String {
+        switch score {
+        case 0.1...:
+            "Indicates a good mood."
+        case ..<(-0.1):
+            "Indicates a bad mood."
+        default:
+            "Indicates a neutral mood."
+        }
+    }
 }
