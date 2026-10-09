@@ -107,7 +107,7 @@ private struct EntryDetailScreen: View {
                     .font(.subheadline.monospacedDigit())
                     .foregroundStyle(.secondary)
                     .accessibilityIdentifier(AccessibilityID.detailScore)
-                Text("This describes the tone of the writing.")
+                Text("Describes tone of writing (\(snapshot.sentiment.moodDescription.lowercased())).")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -156,7 +156,7 @@ private struct EntryDetailScreen: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Sentiment")
                         .font(.headline)
-                    Text(snapshot.sentiment.rawValue)
+                    Text("\(snapshot.sentiment.rawValue) • \(snapshot.sentiment.moodDescription)")
                         .font(.body)
                     if snapshot.keywords.isEmpty {
                         Text("No distinct themes were found in this writing.")

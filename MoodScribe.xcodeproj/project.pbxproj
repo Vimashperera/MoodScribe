@@ -12,10 +12,6 @@
 		B00100000000000000000003 /* SentimentType.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00100000000000000000003 /* SentimentType.swift */; };
 		B00100000000000000000004 /* SentimentAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00100000000000000000004 /* SentimentAnalysis.swift */; };
 		B00100000000000000000005 /* Wellbeing.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00100000000000000000005 /* Wellbeing.swift */; };
-		B00100000000000000000019 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00100000000000000000019 /* HomeView.swift */; };
-		B0010000000000000000001A /* TrendsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0010000000000000000001A /* TrendsView.swift */; };
-		B0010000000000000000001B /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0010000000000000000001B /* SettingsView.swift */; };
-		B0010000000000000000001C /* JournalInsights.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0010000000000000000001C /* JournalInsights.swift */; };
 		B00100000000000000000006 /* AppRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00100000000000000000006 /* AppRoute.swift */; };
 		B00100000000000000000007 /* SentimentAnalysisService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00100000000000000000007 /* SentimentAnalysisService.swift */; };
 		B00100000000000000000008 /* DataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00100000000000000000008 /* DataService.swift */; };
@@ -35,6 +31,11 @@
 		B00100000000000000000016 /* SentimentServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00100000000000000000016 /* SentimentServiceTests.swift */; };
 		B00100000000000000000017 /* ViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00100000000000000000017 /* ViewModelTests.swift */; };
 		B00100000000000000000018 /* MoodScribeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00100000000000000000018 /* MoodScribeUITests.swift */; };
+		B00100000000000000000019 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00100000000000000000019 /* HomeView.swift */; };
+		B0010000000000000000001A /* TrendsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0010000000000000000001A /* TrendsView.swift */; };
+		B0010000000000000000001B /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0010000000000000000001B /* SettingsView.swift */; };
+		B0010000000000000000001C /* JournalInsights.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0010000000000000000001C /* JournalInsights.swift */; };
+		BAD63F42307950AD001C3E04 /* MoodScribe.icon in Resources */ = {isa = PBXBuildFile; fileRef = BAD63F41307950AD001C3E04 /* MoodScribe.icon */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,15 +56,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		BAD63F41307950AD001C3E04 /* MoodScribe.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = MoodScribe.icon; sourceTree = "<group>"; };
 		F00100000000000000000001 /* MoodScribeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodScribeApp.swift; sourceTree = "<group>"; };
 		F00100000000000000000002 /* JournalEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JournalEntry.swift; sourceTree = "<group>"; };
 		F00100000000000000000003 /* SentimentType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentimentType.swift; sourceTree = "<group>"; };
 		F00100000000000000000004 /* SentimentAnalysis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentimentAnalysis.swift; sourceTree = "<group>"; };
 		F00100000000000000000005 /* Wellbeing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Wellbeing.swift; sourceTree = "<group>"; };
-		F00100000000000000000019 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
-		F0010000000000000000001A /* TrendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrendsView.swift; sourceTree = "<group>"; };
-		F0010000000000000000001B /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		F0010000000000000000001C /* JournalInsights.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JournalInsights.swift; sourceTree = "<group>"; };
 		F00100000000000000000006 /* AppRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRoute.swift; sourceTree = "<group>"; };
 		F00100000000000000000007 /* SentimentAnalysisService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentimentAnalysisService.swift; sourceTree = "<group>"; };
 		F00100000000000000000008 /* DataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataService.swift; sourceTree = "<group>"; };
@@ -83,6 +81,10 @@
 		F00100000000000000000016 /* SentimentServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentimentServiceTests.swift; sourceTree = "<group>"; };
 		F00100000000000000000017 /* ViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModelTests.swift; sourceTree = "<group>"; };
 		F00100000000000000000018 /* MoodScribeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodScribeUITests.swift; sourceTree = "<group>"; };
+		F00100000000000000000019 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		F0010000000000000000001A /* TrendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrendsView.swift; sourceTree = "<group>"; };
+		F0010000000000000000001B /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		F0010000000000000000001C /* JournalInsights.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JournalInsights.swift; sourceTree = "<group>"; };
 		F00100000000000000000021 /* MoodScribe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MoodScribe.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F00100000000000000000022 /* MoodScribeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MoodScribeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F00100000000000000000023 /* MoodScribeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MoodScribeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -121,6 +123,7 @@
 				E0010000000000000000003D /* MoodScribeTests */,
 				E0010000000000000000003E /* MoodScribeUITests */,
 				F00100000000000000000024 /* README.md */,
+				BAD63F41307950AD001C3E04 /* MoodScribe.icon */,
 				E00100000000000000000003 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -228,30 +231,6 @@
 			path = Calendar;
 			sourceTree = "<group>";
 		};
-		E00100000000000000000040 /* Home */ = {
-			isa = PBXGroup;
-			children = (
-				F00100000000000000000019 /* HomeView.swift */,
-			);
-			path = Home;
-			sourceTree = "<group>";
-		};
-		E00100000000000000000041 /* Trends */ = {
-			isa = PBXGroup;
-			children = (
-				F0010000000000000000001A /* TrendsView.swift */,
-			);
-			path = Trends;
-			sourceTree = "<group>";
-		};
-		E00100000000000000000042 /* Settings */ = {
-			isa = PBXGroup;
-			children = (
-				F0010000000000000000001B /* SettingsView.swift */,
-			);
-			path = Settings;
-			sourceTree = "<group>";
-		};
 		E00100000000000000000038 /* Root */ = {
 			isa = PBXGroup;
 			children = (
@@ -310,6 +289,30 @@
 				F00100000000000000000018 /* MoodScribeUITests.swift */,
 			);
 			path = MoodScribeUITests;
+			sourceTree = "<group>";
+		};
+		E00100000000000000000040 /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				F00100000000000000000019 /* HomeView.swift */,
+			);
+			path = Home;
+			sourceTree = "<group>";
+		};
+		E00100000000000000000041 /* Trends */ = {
+			isa = PBXGroup;
+			children = (
+				F0010000000000000000001A /* TrendsView.swift */,
+			);
+			path = Trends;
+			sourceTree = "<group>";
+		};
+		E00100000000000000000042 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				F0010000000000000000001B /* SettingsView.swift */,
+			);
+			path = Settings;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -417,6 +420,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B00100000000000000000015 /* Assets.xcassets in Resources */,
+				BAD63F42307950AD001C3E04 /* MoodScribe.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -612,13 +616,14 @@
 		E0010000000000000000001D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = MoodScribe;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
 				CODE_SIGNING_ALLOWED = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphonesimulator*]" = "-";
 				CODE_SIGNING_REQUIRED = NO;
+				"CODE_SIGN_IDENTITY[sdk=iphonesimulator*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = T6986F5T43;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = MoodScribe;
@@ -644,10 +649,11 @@
 		E0010000000000000000001E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = MoodScribe;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = T6986F5T43;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = MoodScribe;
@@ -674,9 +680,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				"CODE_SIGN_IDENTITY[sdk=iphonesimulator*]" = "-";
 				CODE_SIGNING_REQUIRED = NO;
+				"CODE_SIGN_IDENTITY[sdk=iphonesimulator*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -700,9 +706,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				"CODE_SIGN_IDENTITY[sdk=iphonesimulator*]" = "-";
 				CODE_SIGNING_REQUIRED = NO;
+				"CODE_SIGN_IDENTITY[sdk=iphonesimulator*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -725,9 +731,9 @@
 		E00100000000000000000023 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				"CODE_SIGN_IDENTITY[sdk=iphonesimulator*]" = "-";
 				CODE_SIGNING_REQUIRED = NO;
+				"CODE_SIGN_IDENTITY[sdk=iphonesimulator*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -745,9 +751,9 @@
 		E00100000000000000000024 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				"CODE_SIGN_IDENTITY[sdk=iphonesimulator*]" = "-";
 				CODE_SIGNING_REQUIRED = NO;
+				"CODE_SIGN_IDENTITY[sdk=iphonesimulator*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;

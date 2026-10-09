@@ -81,6 +81,45 @@ final class SentimentServiceTests: XCTestCase {
         XCTAssertFalse(positive.toneSentence.localizedCaseInsensitiveContains("mental health"))
     }
 
+    func testCommonJournalNotesEvaluatePositivelyWhenEncouraging() {
+        let sample = "I had a great day today! Went for a walk with my dog."
+        let result = service.analyze(sample)
+        XCTAssertGreaterThan(result.score, 0.1)
+        XCTAssertEqual(result.label, .positive)
+        XCTAssertEqual(result.label.moodDescription, "Good mood")
+    }
+
+    func testNeutralDailyNotesAreNotFalselyNegative() {
+        let sample = "Cooked dinner and watched a movie."
+        let result = service.analyze(sample)
+        XCTAssertGreaterThanOrEqual(result.score, -0.1)
+        XCTAssertEqual(result.label, .neutral)
+    }
+
+    func testSelectedMoodGuidesSentimentScoring() {
+        let neutralText = "Cooked dinner and watched a movie."
+
+        let withGoodMood = service.analyze(neutralText, mood: .good)
+        XCTAssertGreaterThan(withGoodMood.score, 0.1)
+        XCTAssertEqual(withGoodMood.label, .positive)
+        XCTAssertEqual(withGoodMood.label.moodDescription, "Good mood")
+
+        let withLowMood = service.analyze(neutralText, mood: .low)
+        XCTAssertLessThan(withLowMood.score, -0.1)
+        XCTAssertEqual(withLowMood.label, .negative)
+        XCTAssertEqual(withLowMood.label.moodDescription, "Bad mood")
+
+        let emptyWithGreatMood = service.analyze("", mood: .great)
+        XCTAssertGreaterThan(emptyWithGreatMood.score, 0.5)
+        XCTAssertEqual(emptyWithGreatMood.label, .positive)
+    }
+
+    func testSentimentTypeMoodDescription() {
+        XCTAssertEqual(SentimentType.positive.moodDescription, "Good mood")
+        XCTAssertEqual(SentimentType.neutral.moodDescription, "Neutral")
+        XCTAssertEqual(SentimentType.negative.moodDescription, "Bad mood")
+    }
+
     func testAnalysisPerformanceOnALongEntry() {
         let text = String(repeating: "I feel grateful and calm today. ", count: 40)
         measure {
