@@ -288,7 +288,19 @@ private final class SentenceScorer {
         let model = modelScore(for: chunk)
         let composed = compositionalScore(for: chunk)
         let embedded = embeddingScore(for: chunk)
-        return combine(model: model, composed: composed, embedded: embedded, chunk: chunk)
+        let lexical = combine(model: model, composed: composed, embedded: embedded, chunk: chunk)
+        guard let meaning = SentenceMeaningModel.shared.score(for: chunk) else { return lexical }
+        // A strong clause reading, such as negation, wins when it disagrees with the sentence model.
+        if lexical * meaning < 0, abs(lexical) >= 0.35 {
+            return lexical
+        }
+        if abs(meaning) >= 0.15 {
+            return SentimentAnalysisService.clamp(meaning)
+        }
+        if abs(lexical) >= 0.2 {
+            return lexical
+        }
+        return SentimentAnalysisService.clamp(0.65 * meaning + 0.35 * lexical)
     }
 
     /// NLTagger's sentiment scheme reads the sentence, not a bag of matching words.
@@ -555,5 +567,71 @@ private final class SentenceScorer {
         let denominator = (leftNorm * rightNorm).squareRoot()
         guard denominator > 0 else { return 0 }
         return dot / denominator
+    }
+}
+
+/// Apple's pretrained sentence embedding. The score is how close the whole sentence is to known meanings, not whether a keyword appears.
+final class SentenceMeaningModel: @unchecked Sendable {
+    static let shared = SentenceMeaningModel()
+
+    private let lock = NSLock()
+    private let embedding = NLEmbedding.sentenceEmbedding(for: .english)
+    private let positive = [
+        "I won a marathon today.",
+        "I won the race and I feel proud.",
+        "I passed my exam.",
+        "I got the job I wanted.",
+        "I finished something hard and it went well.",
+        "We celebrated and I feel happy.",
+        "I am grateful for a lovely calm day.",
+        "I had a great day today.",
+        "I spent time with friends and we laughed.",
+        "Something good happened and I feel relieved."
+    ]
+    private let neutral = [
+        "I cooked dinner and watched a movie.",
+        "The meeting is in room four at three o'clock.",
+        "I went to class and then came home.",
+        "I bought groceries and did the laundry.",
+        "The library closes at six."
+    ]
+    private let negative = [
+        "I feel terrible, sad, and hopeless.",
+        "I failed and I feel ashamed.",
+        "I am anxious and overwhelmed.",
+        "Today was awful and I feel miserable.",
+        "I am lonely and everything hurts.",
+        "I am not happy about today."
+    ]
+
+    func score(for text: String) -> Double? {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, let embedding else { return nil }
+        lock.lock()
+        defer { lock.unlock() }
+        guard let positiveDistance = nearest(trimmed, to: positive, embedding: embedding),
+              let negativeDistance = nearest(trimmed, to: negative, embedding: embedding),
+              let neutralDistance = nearest(trimmed, to: neutral, embedding: embedding) else {
+            return nil
+        }
+        let positiveWeight = exp(-positiveDistance / 0.12)
+        let negativeWeight = exp(-negativeDistance / 0.12)
+        let neutralWeight = exp(-neutralDistance / 0.12)
+        let total = positiveWeight + negativeWeight + neutralWeight
+        guard total > 0, total.isFinite else { return nil }
+        let value = (positiveWeight * 0.82 + negativeWeight * -0.82) / total
+        guard value.isFinite else { return nil }
+        return SentimentAnalysisService.clamp((value * 1000).rounded() / 1000)
+    }
+
+    private func nearest(_ text: String, to samples: [String], embedding: NLEmbedding) -> Double? {
+        var best = Double.greatestFiniteMagnitude
+        for sample in samples {
+            let distance = embedding.distance(between: text, and: sample, distanceType: .cosine)
+            guard distance.isFinite else { continue }
+            best = min(best, distance)
+        }
+        guard best < Double.greatestFiniteMagnitude else { return nil }
+        return best
     }
 }

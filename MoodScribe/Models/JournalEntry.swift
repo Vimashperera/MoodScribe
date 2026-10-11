@@ -15,6 +15,9 @@ class JournalEntry {
     var factors: [String] = []
     /// False when the entry was saved with automatic analysis turned off.
     var didAnalyze: Bool = true
+    var replyTitle: String = ""
+    var replyMessage: String = ""
+    var replyToneRaw: String = ""
 
     init(
         id: UUID = UUID(),
@@ -26,7 +29,10 @@ class JournalEntry {
         keywords: [String],
         moodRaw: String = "",
         factors: [String] = [],
-        didAnalyze: Bool = true
+        didAnalyze: Bool = true,
+        replyTitle: String = "",
+        replyMessage: String = "",
+        replyToneRaw: String = ""
     ) {
         self.id = id
         self.text = text
@@ -38,6 +44,9 @@ class JournalEntry {
         self.moodRaw = moodRaw
         self.factors = factors
         self.didAnalyze = didAnalyze
+        self.replyTitle = replyTitle
+        self.replyMessage = replyMessage
+        self.replyToneRaw = replyToneRaw
     }
 
     var sentiment: SentimentType {
@@ -57,6 +66,9 @@ struct JournalEntrySnapshot: Identifiable, Equatable, Sendable {
     var mood: SelectedMood?
     var factors: [DayFactor]
     var didAnalyze: Bool
+    var replyTitle: String
+    var replyMessage: String
+    var replyTone: ReplyTone?
 
     var wasEdited: Bool {
         updatedAt.timeIntervalSince(date) > 1
@@ -72,7 +84,10 @@ struct JournalEntrySnapshot: Identifiable, Equatable, Sendable {
         keywords: [String],
         mood: SelectedMood? = nil,
         factors: [DayFactor] = [],
-        didAnalyze: Bool = true
+        didAnalyze: Bool = true,
+        replyTitle: String = "",
+        replyMessage: String = "",
+        replyTone: ReplyTone? = nil
     ) {
         self.id = id
         self.text = text
@@ -84,6 +99,9 @@ struct JournalEntrySnapshot: Identifiable, Equatable, Sendable {
         self.mood = mood
         self.factors = factors
         self.didAnalyze = didAnalyze
+        self.replyTitle = replyTitle
+        self.replyMessage = replyMessage
+        self.replyTone = replyTone
     }
 
     init(entry: JournalEntry) {
@@ -97,5 +115,8 @@ struct JournalEntrySnapshot: Identifiable, Equatable, Sendable {
         mood = SelectedMood(rawValue: entry.moodRaw)
         factors = entry.factors.compactMap(DayFactor.init(rawValue:))
         didAnalyze = entry.didAnalyze
+        replyTitle = entry.replyTitle
+        replyMessage = entry.replyMessage
+        replyTone = ReplyTone(rawValue: entry.replyToneRaw)
     }
 }

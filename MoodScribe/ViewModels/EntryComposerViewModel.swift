@@ -42,6 +42,7 @@ final class EntryComposerViewModel {
     private(set) var didSave = false
     private(set) var savedEntryID: UUID?
     private(set) var validationMessage: String?
+    private(set) var isSaving = false
 
     init(
         mode: ComposerMode,
@@ -138,12 +139,44 @@ final class EntryComposerViewModel {
 
     func save() {
         let payload = resolveAnalysis()
+        let reply = ReflectionReplyService.reply(text: bodyText, mood: selectedMood, factors: Array(selectedFactors))
+        persist(payload: payload, reply: reply)
+    }
+
+    func saveWithLanguageModel() async {
+        guard !isSaving else { return }
+        guard validation == .valid else {
+            validationMessage = validation.message
+            return
+        }
+        isSaving = true
+        defer { isSaving = false }
+        let factors = selectedFactors.sorted { $0.title < $1.title }
+        let interpretation = await OnDeviceJournalModel.interpret(
+            text: bodyText,
+            mood: selectedMood,
+            factors: factors
+        )
+        let payload: (analysis: SentimentAnalysis, didAnalyze: Bool)
+        if analyzesAutomatically {
+            payload = (interpretation.analysis, true)
+        } else {
+            payload = resolveAnalysis()
+        }
+        persist(payload: payload, reply: interpretation.reply)
+    }
+
+    private func persist(
+        payload: (analysis: SentimentAnalysis, didAnalyze: Bool),
+        reply: ReflectionReply
+    ) {
         guard validation == .valid else {
             validationMessage = validation.message
             return
         }
         let factors = selectedFactors.sorted { $0.title < $1.title }
         do {
+            let savedID: UUID
             switch mode {
             case .create:
                 let entry = try dataService.create(
@@ -154,7 +187,7 @@ final class EntryComposerViewModel {
                     analysis: payload.analysis,
                     didAnalyze: payload.didAnalyze
                 )
-                savedEntryID = entry.id
+                savedID = entry.id
             case .edit(let id):
                 try dataService.update(
                     id: id,
@@ -164,8 +197,10 @@ final class EntryComposerViewModel {
                     analysis: payload.analysis,
                     didAnalyze: payload.didAnalyze
                 )
-                savedEntryID = id
+                savedID = id
             }
+            try dataService.setReply(id: savedID, title: reply.title, message: reply.message, tone: reply.tone)
+            savedEntryID = savedID
             didSave = true
         } catch {
             validationMessage = error.localizedDescription

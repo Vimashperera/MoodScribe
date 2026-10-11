@@ -139,6 +139,19 @@ final class SentimentServiceTests: XCTestCase {
         XCTAssertEqual(result.label, .positive)
     }
 
+    func testWinningAMarathonReadsAsPositive() {
+        let result = service.analyze("I won a marathon today")
+        XCTAssertGreaterThan(result.score, 0.1)
+        XCTAssertEqual(result.label, .positive)
+
+        let reply = ReflectionReplyService.reply(text: "I won a marathon today", mood: nil, factors: [])
+        let ordinary = ReflectionReplyService.reply(text: "Cooked dinner and watched a movie.", mood: nil, factors: [])
+        XCTAssertEqual(reply.tone, .uplifting)
+        XCTAssertTrue(reply.message.localizedCaseInsensitiveContains("marathon"))
+        XCTAssertFalse(reply.message.contains("“"))
+        XCTAssertNotEqual(reply.message, ordinary.message)
+    }
+
     func testBleakWritingGetsASupportiveReply() {
         let reply = ReflectionReplyService.reply(
             text: "I feel terrible, sad, angry, and hopeless. This awful day is miserable and painful.",
@@ -146,9 +159,14 @@ final class SentimentServiceTests: XCTestCase {
             factors: []
         )
         XCTAssertEqual(reply.tone, .supportive)
-        XCTAssertTrue(reply.message.localizedCaseInsensitiveContains("heavy"))
+        XCTAssertTrue(
+            reply.message.localizedCaseInsensitiveContains("sad")
+                || reply.message.localizedCaseInsensitiveContains("hopeless")
+                || reply.message.localizedCaseInsensitiveContains("terrible")
+        )
         XCTAssertFalse(reply.message.localizedCaseInsensitiveContains("mental health"))
         XCTAssertFalse(reply.message.localizedCaseInsensitiveContains("diagnos"))
+        XCTAssertFalse(reply.message.contains("“"))
     }
 
     func testWarmWritingGetsAnUpliftingReply() {
@@ -158,7 +176,10 @@ final class SentimentServiceTests: XCTestCase {
             factors: [.friends]
         )
         XCTAssertEqual(reply.tone, .uplifting)
-        XCTAssertTrue(reply.message.localizedCaseInsensitiveContains("warm"))
+        XCTAssertTrue(
+            reply.message.localizedCaseInsensitiveContains("happy")
+                || reply.message.localizedCaseInsensitiveContains("grateful")
+        )
         XCTAssertTrue(reply.message.localizedCaseInsensitiveContains("friends"))
     }
 

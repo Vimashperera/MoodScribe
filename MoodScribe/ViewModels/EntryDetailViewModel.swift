@@ -21,7 +21,15 @@ final class EntryDetailViewModel {
         if let entry = dataService.entry(id: entryID) {
             let loaded = JournalEntrySnapshot(entry: entry)
             snapshot = loaded
-            reply = ReflectionReplyService.reply(text: loaded.text, mood: loaded.mood, factors: loaded.factors)
+            if !loaded.replyMessage.isEmpty {
+                reply = ReflectionReply(
+                    title: loaded.replyTitle,
+                    message: loaded.replyMessage,
+                    tone: loaded.replyTone ?? .steady
+                )
+            } else {
+                reply = ReflectionReplyService.reply(text: loaded.text, mood: loaded.mood, factors: loaded.factors)
+            }
             errorMessage = nil
         } else {
             snapshot = nil

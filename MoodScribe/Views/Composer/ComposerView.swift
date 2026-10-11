@@ -58,9 +58,11 @@ private struct ComposerScreen: View {
                     .accessibilityIdentifier(AccessibilityID.clearDraft)
             }
             ToolbarItem(placement: .confirmationAction) {
-                Button("Save") { viewModel.save() }
-                    .disabled(!viewModel.canSave)
-                    .accessibilityIdentifier(AccessibilityID.save)
+                Button("Save") {
+                    Task { await viewModel.saveWithLanguageModel() }
+                }
+                .disabled(!viewModel.canSave || viewModel.isSaving)
+                .accessibilityIdentifier(AccessibilityID.save)
             }
         }
         .onChange(of: viewModel.didSave) { _, saved in
@@ -138,6 +140,16 @@ private struct ComposerScreen: View {
                         }
                 )
             FactorChipStrip(selected: viewModel.selectedFactors) { viewModel.toggle($0) }
+
+            if viewModel.isSaving {
+                HStack(spacing: 8) {
+                    ProgressView()
+                    Text("Reading your entry…")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                .accessibilityIdentifier(AccessibilityID.readingEntry)
+            }
         }
         .moodCardStyle(tint: .accentColor)
     }

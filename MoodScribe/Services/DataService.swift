@@ -37,6 +37,7 @@ protocol DataService: AnyObject {
         didAnalyze: Bool
     ) throws
     func delete(id: UUID) throws
+    func setReply(id: UUID, title: String, message: String, tone: ReplyTone) throws
 }
 
 @MainActor
@@ -113,6 +114,15 @@ final class SwiftDataService: DataService {
     func delete(id: UUID) throws {
         guard let entry = entry(id: id) else { throw JournalDataError.missingEntry }
         context.delete(entry)
+        try context.save()
+        NotificationCenter.default.post(name: .journalStoreDidChange, object: nil)
+    }
+
+    func setReply(id: UUID, title: String, message: String, tone: ReplyTone) throws {
+        guard let entry = entry(id: id) else { throw JournalDataError.missingEntry }
+        entry.replyTitle = title
+        entry.replyMessage = message
+        entry.replyToneRaw = tone.rawValue
         try context.save()
         NotificationCenter.default.post(name: .journalStoreDidChange, object: nil)
     }
