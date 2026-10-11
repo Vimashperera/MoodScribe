@@ -11,8 +11,10 @@ enum OnDeviceJournalModel {
     static func interpret(text: String, mood: SelectedMood?, factors: [DayFactor]) async -> JournalInterpretation {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         #if canImport(FoundationModels)
-        if let generated = await FoundationJournalReader.read(text: trimmed, mood: mood, factors: factors) {
-            return blend(generated, mood: mood, keywordsFrom: trimmed)
+        if #available(iOS 26.0, *) {
+            if let generated = await FoundationJournalReader.read(text: trimmed, mood: mood, factors: factors) {
+                return blend(generated, mood: mood, keywordsFrom: trimmed)
+            }
         }
         #endif
         return fallback(text: trimmed, mood: mood, factors: factors)
@@ -66,37 +68,7 @@ enum OnDeviceJournalModel {
 #if canImport(FoundationModels)
 import FoundationModels
 
-@Generable
-enum WritingMood: String {
-    case positive
-    case slightlyPositive
-    case neutral
-    case slightlyNegative
-    case negative
-
-    var score: Double {
-        switch self {
-        case .positive: 0.72
-        case .slightlyPositive: 0.34
-        case .neutral: 0
-        case .slightlyNegative: -0.34
-        case .negative: -0.72
-        }
-    }
-}
-
-@Generable
-struct GeneratedJournalReading {
-    @Guide(description: "Mood of the whole journal entry. Winning, passing, reuniting, relief, pride, and good news are positive even when the writer does not use the word happy. A routine day with no evaluation is neutral. Loss, failure, fear, and pain are negative.")
-    var mood: WritingMood
-
-    @Guide(description: "Two to five words naming the specific event, for a reply title. No quotation marks.")
-    var title: String
-
-    @Guide(description: "Two or three original sentences written to the person about the specific events in their entry. Name the achievement, person, or difficulty in your own words. Do not quote them. Do not reuse a generic pep talk. Do not diagnose, and do not mention mental health treatment. If they may be in danger of suicide or self-harm, tell them to contact local emergency services or someone they trust.")
-    var message: String
-}
-
+@available(iOS 26.0, *)
 enum FoundationJournalReader {
     static func read(text: String, mood: SelectedMood?, factors: [DayFactor]) async -> (score: Double, reply: ReflectionReply)? {
         let model = SystemLanguageModel.default
@@ -111,32 +83,52 @@ enum FoundationJournalReader {
         \(moodLine)
         \(factorLine)
 
-        Judge the writing itself. Reply only about what this entry describes.
+        Judge the meaning of the whole entry. Winning, passing, relief, pride, and good news are positive even without the word happy. A routine day is neutral. Loss, failure, fear, and pain are negative.
+        Reply in exactly this form, with no other text:
+        SCORE: <a number from -1 to 1>
+        TITLE: <two to five words naming the event>
+        MESSAGE: <two or three original sentences about this specific entry. Do not use quotation marks. Do not diagnose.>
         """
         let session = LanguageModelSession(instructions: """
-        You are the reply inside a private on-device journal. Read the meaning of the whole entry.
+        You are the reply inside a private on-device journal.
         Write a reply that could only fit this entry, because it talks about the actual events.
         Never quote the entry. Never give a diagnosis.
         """)
         do {
-            let response = try await session.respond(to: prompt, generating: GeneratedJournalReading.self)
-            let reading = response.content
-            let tone: ReplyTone
-            switch reading.mood {
-            case .positive, .slightlyPositive: tone = .uplifting
-            case .negative, .slightlyNegative: tone = .supportive
-            case .neutral: tone = .steady
-            }
-            let reply = ReflectionReply(
-                title: sanitize(reading.title),
-                message: sanitize(reading.message),
-                tone: tone
-            )
-            guard !reply.message.isEmpty else { return nil }
-            return (reading.mood.score, reply)
+            let response = try await session.respond(to: prompt)
+            return parse(response.content)
         } catch {
             return nil
         }
+    }
+
+    private static func parse(_ raw: String) -> (score: Double, reply: ReflectionReply)? {
+        var score: Double?
+        var title = ""
+        var messageLines: [String] = []
+        var readingMessage = false
+        for line in raw.components(separatedBy: .newlines) {
+            if line.hasPrefix("SCORE:") {
+                score = Double(line.dropFirst("SCORE:".count).trimmingCharacters(in: .whitespaces))
+                readingMessage = false
+            } else if line.hasPrefix("TITLE:") {
+                title = sanitize(String(line.dropFirst("TITLE:".count)))
+                readingMessage = false
+            } else if line.hasPrefix("MESSAGE:") {
+                readingMessage = true
+                let rest = sanitize(String(line.dropFirst("MESSAGE:".count)))
+                if !rest.isEmpty { messageLines.append(rest) }
+            } else if readingMessage {
+                let rest = line.trimmingCharacters(in: .whitespaces)
+                if !rest.isEmpty { messageLines.append(rest) }
+            }
+        }
+        guard let score else { return nil }
+        let message = sanitize(messageLines.joined(separator: " "))
+        guard !title.isEmpty, !message.isEmpty else { return nil }
+        let clamped = min(1, max(-1, score))
+        let tone: ReplyTone = clamped > 0.1 ? .uplifting : (clamped < -0.1 ? .supportive : .steady)
+        return (clamped, ReflectionReply(title: title, message: message, tone: tone))
     }
 
     private static func sanitize(_ text: String) -> String {
