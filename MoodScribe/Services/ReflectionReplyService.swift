@@ -67,11 +67,11 @@ enum ReflectionReplyService {
             return theme
         }
         switch tone {
-        case .uplifting: "A good moment"
-        case .steady: "This day"
-        case .supportive: "A hard stretch"
-        case .mixed: "Two sides"
-        case .urgent: "Please reach out"
+        case .uplifting: return "A good moment"
+        case .steady: return "This day"
+        case .supportive: return "A hard stretch"
+        case .mixed: return "Two sides"
+        case .urgent: return "Please reach out"
         }
     }
 
