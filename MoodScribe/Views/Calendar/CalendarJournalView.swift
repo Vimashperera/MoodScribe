@@ -166,11 +166,14 @@ private struct DayEntriesScreen: View {
         let matches = viewModel.entries(on: day)
         Group {
             if matches.isEmpty {
-                ContentUnavailableView(
-                    "No reflection recorded",
-                    systemImage: "calendar.badge.minus",
-                    description: Text("Nothing was saved for \(day.formatted(date: .abbreviated, time: .omitted)).")
-                )
+                ContentUnavailableView {
+                    Label("No reflection recorded", systemImage: "calendar.badge.minus")
+                } description: {
+                    Text("Nothing was saved for \(day.formatted(date: .abbreviated, time: .omitted)).")
+                } actions: {
+                    addReflectionLink
+                        .buttonStyle(.borderedProminent)
+                }
             } else {
                 List(matches) { entry in
                     NavigationLink(value: AppRoute.reflection(entry.id)) {
@@ -181,9 +184,25 @@ private struct DayEntriesScreen: View {
             }
         }
         .navigationTitle(day.formatted(date: .abbreviated, time: .omitted))
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                NavigationLink(value: AppRoute.composer(.create(day: day))) {
+                    Image(systemName: "square.and.pencil")
+                }
+                .accessibilityLabel("Add reflection")
+                .accessibilityIdentifier(AccessibilityID.addDayEntry)
+            }
+        }
         .task { viewModel.reload() }
         .onReceive(NotificationCenter.default.publisher(for: .journalStoreDidChange)) { _ in
             viewModel.reload()
         }
+    }
+
+    private var addReflectionLink: some View {
+        NavigationLink(value: AppRoute.composer(.create(day: day))) {
+            Label("Add reflection", systemImage: "square.and.pencil")
+        }
+        .accessibilityIdentifier(AccessibilityID.addDayEntry)
     }
 }

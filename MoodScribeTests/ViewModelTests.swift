@@ -19,7 +19,7 @@ final class ViewModelTests: XCTestCase {
     }
 
     func testSaveRejectsBlankDraftAndWritesNothing() throws {
-        let viewModel = EntryComposerViewModel(mode: .create, dataService: service)
+        let viewModel = EntryComposerViewModel(mode: .create(day: nil), dataService: service)
         viewModel.updateText("  ")
         viewModel.refreshAnalysis()
         XCTAssertFalse(viewModel.canSave)
@@ -32,7 +32,7 @@ final class ViewModelTests: XCTestCase {
     }
 
     func testSavePersistsAnalysisAndHistoryReloads() throws {
-        let composer = EntryComposerViewModel(mode: .create, dataService: service)
+        let composer = EntryComposerViewModel(mode: .create(day: nil), dataService: service)
         composer.updateText("I feel wonderful, grateful, and calm today.")
         composer.refreshAnalysis()
         XCTAssertTrue(composer.canSave)
@@ -48,6 +48,23 @@ final class ViewModelTests: XCTestCase {
         XCTAssertEqual(history.entries[0].sentiment, SentimentType.classify(history.entries[0].sentimentScore))
         XCTAssertGreaterThanOrEqual(history.entries[0].sentimentScore, -1)
         XCTAssertLessThanOrEqual(history.entries[0].sentimentScore, 1)
+    }
+
+    func testCreateOnAPastDayKeepsThatDate() throws {
+        let calendar = Calendar.current
+        let past = try XCTUnwrap(calendar.date(byAdding: .day, value: -4, to: .now))
+        let composer = EntryComposerViewModel(mode: .create(day: past), dataService: service)
+        composer.updateText("A note from an earlier day.")
+        composer.save()
+
+        let saved = try XCTUnwrap(service.fetchAll().first)
+        XCTAssertTrue(calendar.isDate(saved.date, inSameDayAs: past))
+        XCTAssertFalse(calendar.isDateInToday(saved.date))
+
+        let history = HistoryViewModel(dataService: service)
+        history.reload()
+        XCTAssertEqual(history.entries(on: past).map(\.text), ["A note from an earlier day."])
+        XCTAssertTrue(history.entries(on: .now).isEmpty)
     }
 
     func testEditReplacesTextAndScore() throws {
@@ -164,7 +181,7 @@ final class ViewModelTests: XCTestCase {
     }
 
     func testMoodAndFactorsStaySeparateFromTheJournalText() throws {
-        let composer = EntryComposerViewModel(mode: .create, dataService: service)
+        let composer = EntryComposerViewModel(mode: .create(day: nil), dataService: service)
         composer.updateText("Today was quiet.")
         composer.select(.good)
         composer.toggle(.studies)
@@ -179,7 +196,7 @@ final class ViewModelTests: XCTestCase {
     }
 
     func testMoodCanBeLeftUnsetAndThenEdited() throws {
-        let composer = EntryComposerViewModel(mode: .create, dataService: service)
+        let composer = EntryComposerViewModel(mode: .create(day: nil), dataService: service)
         composer.updateText("A plain note about the afternoon.")
         composer.save()
         let created = try XCTUnwrap(service.fetchAll().first)
@@ -199,7 +216,7 @@ final class ViewModelTests: XCTestCase {
 
     func testEveryMoodOptionCanBeStored() throws {
         for mood in SelectedMood.allCases {
-            let composer = EntryComposerViewModel(mode: .create, dataService: service)
+            let composer = EntryComposerViewModel(mode: .create(day: nil), dataService: service)
             composer.updateText("Checking the \(mood.title) mood option today.")
             composer.select(mood)
             composer.save()
@@ -210,7 +227,7 @@ final class ViewModelTests: XCTestCase {
 
     func testAutomaticAnalysisCanBeTurnedOff() throws {
         let composer = EntryComposerViewModel(
-            mode: .create,
+            mode: .create(day: nil),
             dataService: service,
             analyzesAutomatically: false
         )
@@ -271,7 +288,7 @@ final class ViewModelTests: XCTestCase {
     }
 
     func testResetAndCharacterCap() {
-        let composer = EntryComposerViewModel(mode: .create, dataService: service)
+        let composer = EntryComposerViewModel(mode: .create(day: nil), dataService: service)
         composer.updateText(String(repeating: "word ", count: 800))
         composer.toggle(.work)
         composer.select(.okay)
@@ -285,7 +302,7 @@ final class ViewModelTests: XCTestCase {
     }
 
     func testComposerFactorsSelectedMoodIntoSentimentScoring() throws {
-        let composer = EntryComposerViewModel(mode: .create, dataService: service)
+        let composer = EntryComposerViewModel(mode: .create(day: nil), dataService: service)
         composer.updateText("Cooked dinner and watched a movie.")
         composer.select(.good)
         composer.save()

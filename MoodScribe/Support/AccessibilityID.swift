@@ -22,6 +22,8 @@ enum AccessibilityID {
     static let toneSentence = "detail.tone"
     static let detailReply = "detail.reply"
     static let readingEntry = "composer.reading"
+    static let composerDay = "composer.day"
+    static let addDayEntry = "calendar.addEntry"
     static let moodChart = "trends.moodChart"
 
     static func moodOption(_ mood: SelectedMood) -> String {

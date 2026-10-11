@@ -90,6 +90,13 @@ private struct ComposerScreen: View {
         VStack(alignment: .leading, spacing: 16) {
             Text("How was your day?")
                 .font(.title3.weight(.semibold))
+            if let journalDayLabel = viewModel.journalDayLabel {
+                Text("Saving this reflection for \(journalDayLabel).")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier(AccessibilityID.composerDay)
+            }
 
             TextEditor(text: Binding(
                 get: { viewModel.text },

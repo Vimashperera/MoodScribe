@@ -41,7 +41,7 @@ private struct JournalStack<Content: View>: View {
                             switch mode {
                             case .edit:
                                 if !path.isEmpty { path.removeLast() }
-                            case .create:
+                            case .create(day: _):
                                 if !path.isEmpty { path.removeLast() }
                                 path.append(AppRoute.reflection(id))
                             }

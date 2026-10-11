@@ -32,7 +32,7 @@ private struct HomeScreen: View {
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
-                NavigationLink(value: AppRoute.composer(.create)) {
+                NavigationLink(value: AppRoute.composer(.create(day: nil))) {
                     Label("New Reflection", systemImage: "square.and.pencil")
                         .font(.headline)
                         .frame(maxWidth: .infinity)

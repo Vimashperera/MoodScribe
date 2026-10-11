@@ -77,6 +77,25 @@ final class EntryComposerViewModel {
 
     var navigationTitle: String { mode.navigationTitle }
 
+    /// Shown when the reflection is being written for a day other than today.
+    var journalDayLabel: String? {
+        guard let day = mode.journalDay else { return nil }
+        let calendar = Calendar.current
+        guard !calendar.isDateInToday(day) else { return nil }
+        return day.formatted(date: .complete, time: .omitted)
+    }
+
+    private var entryDate: Date {
+        guard let day = mode.journalDay else { return .now }
+        let calendar = Calendar.current
+        if calendar.isDateInToday(day) { return .now }
+        let clock = calendar.dateComponents([.hour, .minute], from: .now)
+        var parts = calendar.dateComponents([.year, .month, .day], from: day)
+        parts.hour = clock.hour
+        parts.minute = clock.minute
+        return calendar.date(from: parts) ?? calendar.startOfDay(for: day)
+    }
+
     var characterCount: Int { text.count }
 
     var wordCount: Int {
@@ -178,10 +197,10 @@ final class EntryComposerViewModel {
         do {
             let savedID: UUID
             switch mode {
-            case .create:
+            case .create(day: _):
                 let entry = try dataService.create(
                     text: bodyText,
-                    date: .now,
+                    date: entryDate,
                     mood: selectedMood,
                     factors: factors,
                     analysis: payload.analysis,
