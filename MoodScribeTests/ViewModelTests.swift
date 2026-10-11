@@ -295,6 +295,51 @@ final class ViewModelTests: XCTestCase {
         XCTAssertEqual(saved.sentiment, .positive)
     }
 
+    func testMoodTrendAveragesADayAndSkipsOlderEntries() {
+        let calendar = Calendar(identifier: .gregorian)
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let todayGood = snapshot("a", score: 1, keywords: [], dayOffset: 0, now: now, calendar: calendar, mood: .good)
+        let todayGreat = snapshot(
+            "b",
+            score: -1,
+            keywords: [],
+            dayOffset: 0,
+            now: now,
+            calendar: calendar,
+            mood: .great,
+            didAnalyze: false
+        )
+        let old = snapshot("c", score: 0, keywords: [], dayOffset: -40, now: now, calendar: calendar, mood: .veryLow)
+
+        let week = JournalInsights.moodTrend(
+            entries: [todayGood, todayGreat, old],
+            window: .week,
+            now: now,
+            calendar: calendar
+        )
+        XCTAssertEqual(week.points.count, 1)
+        XCTAssertEqual(week.points[0].chosenMood ?? -1, 3.5, accuracy: 0.001)
+        XCTAssertEqual(week.points[0].writingTone ?? -1, 4, accuracy: 0.001)
+        XCTAssertEqual(JournalInsights.writingToneLevel(0), 2, accuracy: 0.001)
+
+        let month = JournalInsights.moodTrend(entries: [old], window: .month, now: now, calendar: calendar)
+        XCTAssertTrue(month.points.isEmpty)
+        XCTAssertEqual(month.start <= month.end, true)
+    }
+
+    func testDetailBuildsAReplyFromTheEntryText() throws {
+        let created = try service.create(
+            text: "I feel terrible, sad, angry, and hopeless.",
+            date: .now,
+            analysis: SentimentAnalysis(score: -0.8, label: .negative, keywords: ["sad"])
+        )
+        let detail = EntryDetailViewModel(entryID: created.id, dataService: service)
+        detail.load()
+        let reply = try XCTUnwrap(detail.reply)
+        XCTAssertFalse(reply.message.isEmpty)
+        XCTAssertEqual(reply.tone, .supportive)
+    }
+
     func testMissingDetailEntryReportsError() {
         let detail = EntryDetailViewModel(entryID: UUID(), dataService: service)
         detail.load()

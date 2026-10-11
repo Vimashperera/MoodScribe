@@ -1,6 +1,10 @@
 import Foundation
 import SwiftData
 
+extension Notification.Name {
+    static let journalStoreDidChange = Notification.Name("MoodScribe.journalStoreDidChange")
+}
+
 enum JournalDataError: LocalizedError {
     case missingEntry
 
@@ -81,6 +85,7 @@ final class SwiftDataService: DataService {
         )
         context.insert(entry)
         try context.save()
+        NotificationCenter.default.post(name: .journalStoreDidChange, object: nil)
         return entry
     }
 
@@ -102,11 +107,13 @@ final class SwiftDataService: DataService {
         entry.sentiment = didAnalyze ? analysis.label : .neutral
         entry.keywords = didAnalyze ? analysis.keywords : []
         try context.save()
+        NotificationCenter.default.post(name: .journalStoreDidChange, object: nil)
     }
 
     func delete(id: UUID) throws {
         guard let entry = entry(id: id) else { throw JournalDataError.missingEntry }
         context.delete(entry)
         try context.save()
+        NotificationCenter.default.post(name: .journalStoreDidChange, object: nil)
     }
 }

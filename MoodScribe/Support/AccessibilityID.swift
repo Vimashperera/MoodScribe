@@ -20,6 +20,8 @@ enum AccessibilityID {
     static let settingsShowSentiment = "settings.showSentiment"
     static let settingsPrivacy = "settings.privacy"
     static let toneSentence = "detail.tone"
+    static let detailReply = "detail.reply"
+    static let moodChart = "trends.moodChart"
 
     static func moodOption(_ mood: SelectedMood) -> String {
         "mood.option.\(mood.rawValue)"

@@ -1,3 +1,4 @@
+import Combine
 import SwiftUI
 import UIKit
 
@@ -79,6 +80,9 @@ private struct HomeScreen: View {
         .navigationTitle("MoodScribe")
         .task { viewModel.reload() }
         .refreshable { viewModel.reload() }
+        .onReceive(NotificationCenter.default.publisher(for: .journalStoreDidChange)) { _ in
+            viewModel.reload()
+        }
     }
 }
 

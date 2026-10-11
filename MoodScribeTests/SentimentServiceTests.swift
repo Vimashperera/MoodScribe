@@ -120,6 +120,75 @@ final class SentimentServiceTests: XCTestCase {
         XCTAssertEqual(SentimentType.negative.moodDescription, "Bad mood")
     }
 
+    func testNegationFlipsAPositiveWord() {
+        let result = service.analyze("I am not happy about today.")
+        XCTAssertLessThanOrEqual(result.score, 0.1)
+        XCTAssertNotEqual(result.label, .positive)
+    }
+
+    func testContrastLetsTheLaterClauseLead() {
+        let turnedAround = service.analyze("The morning was awful and miserable, but the evening was wonderful and I felt grateful.")
+        let stayedDown = service.analyze("The morning was awful and miserable, and the evening was terrible and hopeless.")
+        XCTAssertGreaterThan(turnedAround.score, stayedDown.score)
+        XCTAssertGreaterThan(turnedAround.score, 0)
+    }
+
+    func testPositiveJournalWithoutASelectedMoodIsNotNeutral() {
+        let result = service.analyze("I had a lovely peaceful afternoon and I felt proud of how it turned out.")
+        XCTAssertGreaterThan(result.score, 0.1)
+        XCTAssertEqual(result.label, .positive)
+    }
+
+    func testBleakWritingGetsASupportiveReply() {
+        let reply = ReflectionReplyService.reply(
+            text: "I feel terrible, sad, angry, and hopeless. This awful day is miserable and painful.",
+            mood: nil,
+            factors: []
+        )
+        XCTAssertEqual(reply.tone, .supportive)
+        XCTAssertTrue(reply.message.localizedCaseInsensitiveContains("heavy"))
+        XCTAssertFalse(reply.message.localizedCaseInsensitiveContains("mental health"))
+        XCTAssertFalse(reply.message.localizedCaseInsensitiveContains("diagnos"))
+    }
+
+    func testWarmWritingGetsAnUpliftingReply() {
+        let reply = ReflectionReplyService.reply(
+            text: "I am so happy, grateful, and excited. This wonderful day fills me with joy and love.",
+            mood: nil,
+            factors: [.friends]
+        )
+        XCTAssertEqual(reply.tone, .uplifting)
+        XCTAssertTrue(reply.message.localizedCaseInsensitiveContains("warm"))
+        XCTAssertTrue(reply.message.localizedCaseInsensitiveContains("friends"))
+    }
+
+    func testMixedEntryAcknowledgesBothSides() {
+        let reply = ReflectionReplyService.reply(
+            text: "I feel terrible, sad, and hopeless. Later I felt grateful, happy, and full of joy.",
+            mood: nil,
+            factors: []
+        )
+        XCTAssertEqual(reply.tone, .mixed)
+        XCTAssertTrue(reply.message.localizedCaseInsensitiveContains("both"))
+    }
+
+    func testReplyStaysTheSameForTheSameEntry() {
+        let text = "I feel terrible, sad, angry, and hopeless."
+        let first = ReflectionReplyService.reply(text: text, mood: nil, factors: [])
+        let second = ReflectionReplyService.reply(text: text, mood: nil, factors: [])
+        XCTAssertEqual(first, second)
+    }
+
+    func testCrisisLanguageAsksForImmediateHelp() {
+        let reply = ReflectionReplyService.reply(
+            text: "I want to die and I cannot see a way through today.",
+            mood: nil,
+            factors: []
+        )
+        XCTAssertEqual(reply.tone, .urgent)
+        XCTAssertTrue(reply.message.localizedCaseInsensitiveContains("emergency"))
+    }
+
     func testAnalysisPerformanceOnALongEntry() {
         let text = String(repeating: "I feel grateful and calm today. ", count: 40)
         measure {

@@ -18,6 +18,21 @@ struct WeekSummary: Equatable, Sendable {
     var detail: String
 }
 
+struct MoodTrendPoint: Identifiable, Equatable, Sendable {
+    var day: Date
+    /// Chosen mood on a 0...4 scale. Very Low is 0 and Great is 4.
+    var chosenMood: Double?
+    /// Writing tone placed on the same 0...4 scale so it can share the chart.
+    var writingTone: Double?
+    var id: Date { day }
+}
+
+struct MoodTrend: Equatable, Sendable {
+    var start: Date
+    var end: Date
+    var points: [MoodTrendPoint]
+}
+
 enum JournalInsights {
     static let keepJournaling = "Keep journaling to discover your personal patterns."
 
@@ -143,6 +158,47 @@ enum JournalInsights {
         }
 
         return WeekSummary(count: slice.count, detail: "Mood not selected")
+    }
+
+    static func moodTrend(
+        entries: [JournalEntrySnapshot],
+        window: TrendWindow,
+        now: Date,
+        calendar: Calendar = .current
+    ) -> MoodTrend {
+        let startOfToday = calendar.startOfDay(for: now)
+        let start = calendar.date(byAdding: .day, value: -(window.lengthInDays - 1), to: startOfToday) ?? startOfToday
+        let endBoundary = calendar.date(byAdding: .day, value: 1, to: startOfToday) ?? now
+        let slice = entries.filter { $0.date >= start && $0.date < endBoundary }
+
+        var grouped: [Date: [JournalEntrySnapshot]] = [:]
+        for entry in slice {
+            grouped[calendar.startOfDay(for: entry.date), default: []].append(entry)
+        }
+
+        let points = grouped.keys.sorted().compactMap { day -> MoodTrendPoint? in
+            let items = grouped[day] ?? []
+            let ranks = items.compactMap { $0.mood.map { Double($0.rank) } }
+            let chosen: Double? = ranks.isEmpty ? nil : ranks.reduce(0, +) / Double(ranks.count)
+            let analyzed = items.filter(\.didAnalyze)
+            let tone: Double?
+            if analyzed.isEmpty {
+                tone = nil
+            } else {
+                let average = analyzed.reduce(0.0) { $0 + $1.sentimentScore } / Double(analyzed.count)
+                tone = writingToneLevel(average)
+            }
+            guard chosen != nil || tone != nil else { return nil }
+            return MoodTrendPoint(day: day, chosenMood: chosen, writingTone: tone)
+        }
+
+        return MoodTrend(start: start, end: startOfToday, points: points)
+    }
+
+    /// Maps a sentiment score in -1...1 onto the mood axis 0...4.
+    static func writingToneLevel(_ score: Double) -> Double {
+        let clamped = min(1, max(-1, score))
+        return (clamped + 1) / 2 * 4
     }
 
     static func greeting(for date: Date, calendar: Calendar = .current) -> String {

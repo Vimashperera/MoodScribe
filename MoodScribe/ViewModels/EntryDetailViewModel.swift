@@ -8,6 +8,7 @@ final class EntryDetailViewModel {
     private let dataService: any DataService
 
     private(set) var snapshot: JournalEntrySnapshot?
+    private(set) var reply: ReflectionReply?
     private(set) var errorMessage: String?
     private(set) var didDelete = false
 
@@ -18,10 +19,13 @@ final class EntryDetailViewModel {
 
     func load() {
         if let entry = dataService.entry(id: entryID) {
-            snapshot = JournalEntrySnapshot(entry: entry)
+            let loaded = JournalEntrySnapshot(entry: entry)
+            snapshot = loaded
+            reply = ReflectionReplyService.reply(text: loaded.text, mood: loaded.mood, factors: loaded.factors)
             errorMessage = nil
         } else {
             snapshot = nil
+            reply = nil
             errorMessage = "This entry is no longer available."
         }
     }

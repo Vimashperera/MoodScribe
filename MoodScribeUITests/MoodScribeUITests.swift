@@ -39,6 +39,7 @@ final class MoodScribeUITests: XCTestCase {
         XCTAssertTrue(element("sentiment.gauge").waitForExistence(timeout: 3))
         XCTAssertTrue(element("detail.score").waitForExistence(timeout: 3))
         XCTAssertTrue(element("detail.tone").waitForExistence(timeout: 3))
+        XCTAssertTrue(element("detail.reply").waitForExistence(timeout: 3))
         XCTAssertTrue(element("detail.text").waitForExistence(timeout: 3))
         XCTAssertTrue(element("detail.edit").exists)
         XCTAssertTrue(element("detail.delete").exists)

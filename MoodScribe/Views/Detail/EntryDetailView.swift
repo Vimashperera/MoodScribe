@@ -1,3 +1,4 @@
+import Combine
 import SwiftUI
 import UIKit
 
@@ -68,6 +69,9 @@ private struct EntryDetailScreen: View {
             Text("This journal entry will be removed from this device.")
         }
         .task { viewModel.load() }
+        .onReceive(NotificationCenter.default.publisher(for: .journalStoreDidChange)) { _ in
+            viewModel.load()
+        }
         .onChange(of: viewModel.didDelete) { _, deleted in
             if deleted { dismiss() }
         }
@@ -128,6 +132,24 @@ private struct EntryDetailScreen: View {
                     FlexibleKeywordWrap(keywords: snapshot.factors.map(\.title))
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
+            if let reply = viewModel.reply {
+                VStack(alignment: .leading, spacing: 6) {
+                    Label(reply.title, systemImage: reply.systemImage)
+                        .font(.headline)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    Text(reply.message)
+                        .font(.body)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Text("A note on what you wrote. It is not a clinical assessment.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .accessibilityElement(children: .combine)
+                .accessibilityIdentifier(AccessibilityID.detailReply)
             }
         }
         .moodCardStyle(tint: reflectionTint(snapshot))

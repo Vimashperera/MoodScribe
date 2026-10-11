@@ -1,5 +1,15 @@
 import Foundation
 
+struct SentenceReading: Equatable, Sendable {
+    var text: String
+    var score: Double
+}
+
+struct SentimentReading: Equatable, Sendable {
+    var analysis: SentimentAnalysis
+    var sentences: [SentenceReading]
+}
+
 struct SentimentAnalysis: Equatable, Sendable {
     var score: Double
     var label: SentimentType

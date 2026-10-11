@@ -1,3 +1,4 @@
+import Combine
 import SwiftUI
 import UIKit
 
@@ -84,6 +85,9 @@ private struct CalendarScreen: View {
         .searchable(text: $viewModel.query, prompt: "Search entries")
         .task { viewModel.reload() }
         .refreshable { viewModel.reload() }
+        .onReceive(NotificationCenter.default.publisher(for: .journalStoreDidChange)) { _ in
+            viewModel.reload()
+        }
         .confirmationDialog(
             "Delete this reflection?",
             isPresented: Binding(
@@ -178,5 +182,8 @@ private struct DayEntriesScreen: View {
         }
         .navigationTitle(day.formatted(date: .abbreviated, time: .omitted))
         .task { viewModel.reload() }
+        .onReceive(NotificationCenter.default.publisher(for: .journalStoreDidChange)) { _ in
+            viewModel.reload()
+        }
     }
 }

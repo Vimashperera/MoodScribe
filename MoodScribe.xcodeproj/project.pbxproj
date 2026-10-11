@@ -15,6 +15,7 @@
 		B00100000000000000000006 /* AppRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00100000000000000000006 /* AppRoute.swift */; };
 		B00100000000000000000007 /* SentimentAnalysisService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00100000000000000000007 /* SentimentAnalysisService.swift */; };
 		B00100000000000000000008 /* DataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00100000000000000000008 /* DataService.swift */; };
+		B0010000000000000000001D /* ReflectionReplyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0010000000000000000001D /* ReflectionReplyService.swift */; };
 		B00100000000000000000009 /* EntryComposerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00100000000000000000009 /* EntryComposerViewModel.swift */; };
 		B0010000000000000000000A /* EntryDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0010000000000000000000A /* EntryDetailViewModel.swift */; };
 		B0010000000000000000000B /* HistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0010000000000000000000B /* HistoryViewModel.swift */; };
@@ -65,6 +66,7 @@
 		F00100000000000000000006 /* AppRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRoute.swift; sourceTree = "<group>"; };
 		F00100000000000000000007 /* SentimentAnalysisService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentimentAnalysisService.swift; sourceTree = "<group>"; };
 		F00100000000000000000008 /* DataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataService.swift; sourceTree = "<group>"; };
+		F0010000000000000000001D /* ReflectionReplyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReflectionReplyService.swift; sourceTree = "<group>"; };
 		F00100000000000000000009 /* EntryComposerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryComposerViewModel.swift; sourceTree = "<group>"; };
 		F0010000000000000000000A /* EntryDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryDetailViewModel.swift; sourceTree = "<group>"; };
 		F0010000000000000000000B /* HistoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryViewModel.swift; sourceTree = "<group>"; };
@@ -176,6 +178,7 @@
 			isa = PBXGroup;
 			children = (
 				F00100000000000000000007 /* SentimentAnalysisService.swift */,
+				F0010000000000000000001D /* ReflectionReplyService.swift */,
 				F00100000000000000000008 /* DataService.swift */,
 			);
 			path = Services;
@@ -456,6 +459,7 @@
 				B0010000000000000000001C /* JournalInsights.swift in Sources */,
 				B00100000000000000000006 /* AppRoute.swift in Sources */,
 				B00100000000000000000007 /* SentimentAnalysisService.swift in Sources */,
+				B0010000000000000000001D /* ReflectionReplyService.swift in Sources */,
 				B00100000000000000000008 /* DataService.swift in Sources */,
 				B00100000000000000000009 /* EntryComposerViewModel.swift in Sources */,
 				B0010000000000000000000A /* EntryDetailViewModel.swift in Sources */,
