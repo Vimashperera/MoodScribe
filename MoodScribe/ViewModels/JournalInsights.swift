@@ -1,5 +1,6 @@
 import Foundation
 
+/// Pure summaries over entries already loaded. It does not query SwiftData and it stays quiet when there is not enough data.
 enum MoodDirection: String, Equatable, Sendable {
     case improving = "Improving"
     case steady = "Steady"

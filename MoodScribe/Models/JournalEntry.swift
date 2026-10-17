@@ -1,6 +1,11 @@
 import Foundation
 import SwiftData
 
+/// The only persisted model. Chosen mood and factors are stored beside the text, not inside it.
+/// `didAnalyze` is false when the entry was saved with automatic analysis turned off.
+/// New fields have defaults so an older store can still open.
+/// Screens use `JournalEntrySnapshot` instead of holding the SwiftData object.
+
 @Model
 class JournalEntry {
     @Attribute(.unique) var id: UUID

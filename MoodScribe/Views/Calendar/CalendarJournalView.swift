@@ -2,6 +2,7 @@ import Combine
 import SwiftUI
 import UIKit
 
+/// Month grid, search, and sentiment filters. A selected day can hold its own reflection.
 struct CalendarJournalView: View {
     @Environment(\.modelContext) private var modelContext
 

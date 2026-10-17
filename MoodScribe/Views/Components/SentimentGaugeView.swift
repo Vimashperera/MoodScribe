@@ -1,5 +1,6 @@
 import SwiftUI
 
+/// Custom component. Radial gauge for a signed sentiment score from -1 to +1. Shown on the reflection screen only.
 struct SentimentGaugeView: View {
     let score: Double
     let label: SentimentType

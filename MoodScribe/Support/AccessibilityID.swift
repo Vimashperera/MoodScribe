@@ -1,5 +1,6 @@
 import Foundation
 
+/// Stable identifiers for UI tests. Tests look these up instead of depending only on visible copy.
 enum AccessibilityID {
     static let newEntry = "history.newEntry"
     static let entryRow = "history.entry"

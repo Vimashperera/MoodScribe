@@ -1,5 +1,6 @@
 import Foundation
 
+/// Create can carry a calendar day so the saved entry stays on that day. Nil means today.
 enum ComposerMode: Hashable {
     /// `day` is the calendar day the reflection belongs to. Nil means today.
     case create(day: Date?)
@@ -20,6 +21,7 @@ enum ComposerMode: Hashable {
     }
 }
 
+/// Destinations inside each tab's NavigationStack.
 enum AppRoute: Hashable {
     case composer(ComposerMode)
     case reflection(UUID)

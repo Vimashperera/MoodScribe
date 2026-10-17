@@ -1,6 +1,9 @@
 import Foundation
 import Observation
 
+/// Owns the draft: text limits, optional mood and factors, and the save.
+/// `saveWithLanguageModel` is what the Save button calls. The gauge is not updated while typing.
+
 enum ComposerValidation: Equatable {
     case valid
     case empty
@@ -162,6 +165,7 @@ final class EntryComposerViewModel {
         persist(payload: payload, reply: reply)
     }
 
+    /// Save path used by the button. Prefers the on-device model on iOS 26, otherwise NLTagger plus the reply templates.
     func saveWithLanguageModel() async {
         guard !isSaving else { return }
         guard validation == .valid else {

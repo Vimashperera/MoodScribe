@@ -1,6 +1,8 @@
 import Foundation
 import NaturalLanguage
 
+/// Short reply stored with the entry after save. It names the event in the writing.
+/// A crisis-sounding entry only points the person to emergency help. It is not counselling.
 enum ReplyTone: String, Equatable, Sendable {
     case uplifting
     case steady

@@ -1,6 +1,7 @@
 import XCTest
 @testable import MoodScribe
 
+/// Calls NLTagger for real. Asserts range and ordering, not one frozen Apple score.
 final class SentimentServiceTests: XCTestCase {
     private let service = SentimentAnalysisService()
 

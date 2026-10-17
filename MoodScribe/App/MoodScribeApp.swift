@@ -1,6 +1,10 @@
 import SwiftUI
 import SwiftData
 
+/// App entry. Opens one local SwiftData store and shows the tab bar.
+/// CloudKit is off, so journal text never leaves the device.
+/// Launching with `-ui-testing` uses an in-memory store so UI tests cannot leak rows.
+
 @main
 struct MoodScribeApp: App {
     private let container: ModelContainer

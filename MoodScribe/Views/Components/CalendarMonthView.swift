@@ -1,5 +1,6 @@
 import SwiftUI
 
+/// Month grid. Sideways drag or the chevrons change the month. Day buttons are borderless so taps work inside a List.
 struct CalendarMonthView: View {
     let month: Date
     let selectedDay: Date?

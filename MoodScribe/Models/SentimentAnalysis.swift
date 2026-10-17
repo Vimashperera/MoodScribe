@@ -1,15 +1,19 @@
 import Foundation
 
+/// One sentence and the tone score given to that sentence alone.
 struct SentenceReading: Equatable, Sendable {
     var text: String
     var score: Double
 }
 
+/// The whole reading: a document-level analysis plus each sentence.
 struct SentimentReading: Equatable, Sendable {
     var analysis: SentimentAnalysis
     var sentences: [SentenceReading]
 }
 
+/// Tone of the writing, from -1 to +1. This is not a mental-health measurement.
+/// Labels use ±0.1. The sentences shown to the user use a wider ±0.45 band.
 struct SentimentAnalysis: Equatable, Sendable {
     var score: Double
     var label: SentimentType

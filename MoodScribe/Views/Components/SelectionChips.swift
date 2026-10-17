@@ -1,5 +1,6 @@
 import SwiftUI
 
+/// Mood chips and factor chips. Tapping a selected mood again clears it.
 struct MoodPicker: View {
     var selected: SelectedMood?
     var onSelect: (SelectedMood) -> Void

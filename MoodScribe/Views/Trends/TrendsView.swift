@@ -3,6 +3,7 @@ import Combine
 import SwiftUI
 import UIKit
 
+/// Week or month view. Mood direction uses chosen moods. Sentiment averages only rows that were analysed.
 struct TrendsView: View {
     @Environment(\.modelContext) private var modelContext
 

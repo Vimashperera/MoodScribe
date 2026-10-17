@@ -1,5 +1,6 @@
 import Foundation
 
+/// Score plus the reply that will be stored on the entry.
 struct JournalInterpretation: Equatable, Sendable {
     var analysis: SentimentAnalysis
     var reply: ReflectionReply

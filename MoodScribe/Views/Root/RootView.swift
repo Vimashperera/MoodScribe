@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 
+/// Four tabs. Each tab owns its own NavigationStack so one tab's back stack does not clear the others.
 struct RootView: View {
     var body: some View {
         TabView {

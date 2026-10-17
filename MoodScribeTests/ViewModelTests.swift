@@ -2,6 +2,7 @@ import XCTest
 import SwiftData
 @testable import MoodScribe
 
+/// Save, edit, delete, search, and insight rules against an in-memory SwiftData store.
 @MainActor
 final class ViewModelTests: XCTestCase {
     private var container: ModelContainer!

@@ -1,5 +1,6 @@
 import SwiftUI
 
+/// Two switches and the privacy note. The note matches the code: local store, on-device analysis, no external server.
 struct SettingsView: View {
     @AppStorage(JournalPreference.analyzeAutomatically) private var analyzeAutomatically = true
     @AppStorage(JournalPreference.showSentiment) private var showSentiment = true

@@ -1,5 +1,7 @@
 import SwiftUI
 
+/// Positive above 0.1, Negative below -0.1, otherwise Neutral.
+/// Colours mix warm amber, grey, and cool blue so the gauge does not look like a medical alarm.
 enum SentimentType: String, Codable, CaseIterable, Identifiable, Sendable {
     case positive = "Positive"
     case neutral = "Neutral"

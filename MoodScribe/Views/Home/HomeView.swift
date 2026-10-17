@@ -2,6 +2,7 @@ import Combine
 import SwiftUI
 import UIKit
 
+/// Greeting, New Reflection, a seven-day summary, and the three newest entries.
 struct HomeView: View {
     @Environment(\.modelContext) private var modelContext
 

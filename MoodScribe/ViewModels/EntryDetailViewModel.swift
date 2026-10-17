@@ -1,6 +1,8 @@
 import Foundation
 import Observation
 
+/// Loads one saved reflection and can delete it. The reply is read back from the stored row.
+
 @MainActor
 @Observable
 final class EntryDetailViewModel {

@@ -1,5 +1,6 @@
 import Foundation
 
+/// Mood the person tapped. `rank` is only for trends. `sentimentScore` is only blended with the writing score.
 enum SelectedMood: String, Codable, CaseIterable, Identifiable, Hashable, Sendable {
     case great = "Great"
     case good = "Good"
@@ -43,6 +44,7 @@ enum SelectedMood: String, Codable, CaseIterable, Identifiable, Hashable, Sendab
     }
 }
 
+/// Optional influence on the day, such as Studies or Work. Stored by its title, separate from the journal text.
 enum DayFactor: String, Codable, CaseIterable, Identifiable, Hashable, Sendable {
     case work = "Work"
     case studies = "Studies"

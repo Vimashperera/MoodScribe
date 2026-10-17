@@ -2,6 +2,7 @@ import Combine
 import SwiftUI
 import UIKit
 
+/// One saved reflection: the writing, the chosen mood, the factors, the tone gauge, and the stored reply.
 struct EntryDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @AppStorage(JournalPreference.showSentiment) private var showSentiment = true

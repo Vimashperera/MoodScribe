@@ -1,6 +1,8 @@
 import SwiftUI
 import UIKit
 
+/// Writing screen. Mood and factors are optional. There is no live gauge here.
+/// Save calls `saveWithLanguageModel`, which scores the committed text and opens the reflection.
 struct ComposerView: View {
     @Environment(\.modelContext) private var modelContext
     @AppStorage(JournalPreference.analyzeAutomatically) private var analyzeAutomatically = true
@@ -18,6 +20,7 @@ struct ComposerView: View {
     }
 }
 
+/// UserDefaults keys. Both settings default to true.
 enum JournalPreference {
     static let analyzeAutomatically = "moodscribe.analyzeAutomatically"
     static let showSentiment = "moodscribe.showSentiment"

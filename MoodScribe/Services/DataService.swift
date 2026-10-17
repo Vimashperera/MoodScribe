@@ -1,6 +1,9 @@
 import Foundation
 import SwiftData
 
+/// Create, read, update, and delete for journal rows.
+/// `DataService` is a protocol so tests can use the same SwiftData service against an in-memory store.
+
 extension Notification.Name {
     static let journalStoreDidChange = Notification.Name("MoodScribe.journalStoreDidChange")
 }

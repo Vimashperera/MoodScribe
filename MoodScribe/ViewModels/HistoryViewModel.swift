@@ -1,6 +1,7 @@
 import Foundation
 import Observation
 
+/// Week is the last 7 days including today. Month is the last 30.
 enum TrendWindow: String, CaseIterable, Identifiable {
     case week = "7 Days"
     case month = "30 Days"
@@ -15,6 +16,7 @@ enum TrendWindow: String, CaseIterable, Identifiable {
     }
 }
 
+/// Loads every entry once, then filters, searches, and pages the month in memory.
 @MainActor
 @Observable
 final class HistoryViewModel {

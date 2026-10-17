@@ -1,5 +1,6 @@
 import XCTest
 
+/// Launches with `-ui-testing`. Checks that the gauge is absent while typing and present after save.
 final class MoodScribeUITests: XCTestCase {
     private var app: XCUIApplication!
 

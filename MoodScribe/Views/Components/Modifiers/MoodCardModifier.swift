@@ -1,5 +1,6 @@
 import SwiftUI
 
+/// Custom ViewModifier used by the rubric. Cards share this padding, material, tint, and shadow.
 struct MoodCardModifier: ViewModifier {
     var tint: Color = .accentColor
 

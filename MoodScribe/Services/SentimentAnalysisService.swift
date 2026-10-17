@@ -1,6 +1,9 @@
 import Foundation
 import NaturalLanguage
 
+/// On-device tone scoring. Runs at save time, not on each keystroke.
+/// Each sentence is scored from NLTagger, a word list that understands "not" and "but",
+/// and English word embeddings. The chosen mood is then blended in.
 struct SentimentAnalysisService: Sendable {
     private let maximumKeywords = 6
 
@@ -51,6 +54,7 @@ struct SentimentAnalysisService: Sendable {
         }.value
     }
 
+    /// If the writing is almost flat, the chosen mood counts for 75%. Otherwise text and mood are averaged.
     private static func blend(_ textScore: Double, mood: SelectedMood?) -> Double {
         let final: Double
         if let mood {
